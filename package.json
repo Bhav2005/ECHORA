@@ -1,0 +1,8 @@
+{
+  "name": "echora-root",
+  "private": true,
+  "description": "Root workspace config and test dependencies",
+  "dependencies": {
+    "node-forge": "^1.3.1"
+  }
+}
