@@ -150,6 +150,19 @@ export default function AdminDashboard() {
     boxShadow: '0 10px 34px rgba(27,35,64,0.08), 0 2px 8px rgba(27,35,64,0.04)',
   };
 
+  const inputStyle = {
+    width: '100%',
+    padding: '13px 15px',
+    fontFamily: "'Work Sans',sans-serif",
+    fontSize: 14.5,
+    color: tokens.ink,
+    background: tokens.paper,
+    border: `1.5px solid ${tokens.border}`,
+    borderRadius: 10,
+    outline: 'none',
+    boxSizing: 'border-box',
+  };
+
   return (
     <div className="ech-step container mx-auto" style={{ padding: '44px 24px', maxWidth: 1000, minHeight: '85vh' }}>
       

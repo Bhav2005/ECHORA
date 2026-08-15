@@ -62,6 +62,12 @@ export const getDashboardComplaints = async () => {
   return response.data;
 };
 
+// Public — no admin token needed. Powers the Transparency page.
+export const getPublicTransparency = async () => {
+  const response = await api.get('/api/dashboard/public-transparency');
+  return response.data;
+};
+
 export const updateComplaintStatus = async (complaintId, status) => {
   const response = await api.patch(`/api/complaints/${complaintId}/status`, { status });
   return response.data;

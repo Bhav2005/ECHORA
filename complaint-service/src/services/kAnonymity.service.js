@@ -50,10 +50,43 @@ const getHeatmapData = async () => {
   return result.rows;
 };
 
+// Global totals — safe to publish as-is, since they're system-wide counts,
+// not broken down into small groups that could be traced back to anyone.
+const getPublicSummary = async () => {
+  const query = `
+    SELECT
+      COUNT(*)::integer as total,
+      COUNT(*) FILTER (WHERE status = 'RESOLVED')::integer as resolved
+    FROM complaints
+  `;
+  const result = await pool.query(query);
+  return result.rows[0];
+};
+
+// Monthly volume, total only (not split by category/department, to avoid
+// thin monthly x category cells that could approach identifying detail).
+const getMonthlyVolume = async () => {
+  const query = `
+    SELECT
+      to_char(date_trunc('month', created_at), 'Mon') as month,
+      date_trunc('month', created_at) as month_start,
+      COUNT(*)::integer as total,
+      COUNT(*) FILTER (WHERE status = 'RESOLVED')::integer as resolved
+    FROM complaints
+    WHERE created_at >= NOW() - INTERVAL '6 months'
+    GROUP BY date_trunc('month', created_at)
+    ORDER BY month_start ASC
+  `;
+  const result = await pool.query(query);
+  return result.rows.map(r => ({ month: r.month, total: r.total, resolved: r.resolved }));
+};
+
 module.exports = {
   getDepartmentStats,
   getBuildingStats,
   getCategoryStats,
   getHeatmapData,
+  getPublicSummary,
+  getMonthlyVolume,
   K_THRESHOLD,
 };

@@ -1,5 +1,6 @@
-import React from 'react';
+import React, { useState, useEffect } from 'react';
 import { tokens } from '../styles/tokens';
+import { getPublicTransparency } from '../api/complaintApi';
 
 // Category icons helper
 function CatIcon({ name, color }) {
@@ -18,30 +19,24 @@ function CatIcon({ name, color }) {
 }
 
 export default function TransparencyPage() {
-  const monthly = [
-    { m: 'Mar', total: 18, resolved: 15 },
-    { m: 'Apr', total: 24, resolved: 20 },
-    { m: 'May', total: 21, resolved: 19 },
-    { m: 'Jun', total: 15, resolved: 14 },
-    { m: 'Jul', total: 27, resolved: 22 },
-    { m: 'Aug', total: 31, resolved: 24 },
-  ];
-  const byCategory = [
-    { cat: 'Academics', count: 34 },
-    { cat: 'Harassment', count: 19 },
-    { cat: 'Hostel & Facilities', count: 28 },
-    { cat: 'Faculty conduct', count: 15 },
-    { cat: 'Finance & fees', count: 11 },
-    { cat: 'Safety', count: 9 },
-    { cat: 'Discrimination', count: 6 },
-    { cat: 'Other', count: 14 },
-  ];
-  
-  const maxCat = Math.max(...byCategory.map(c => c.count));
-  const maxMonth = Math.max(...monthly.map(m => m.total));
-  const totalAllTime = 136;
-  const resolvedPct = 84;
-  const avgDays = 4.2;
+  const [data, setData] = useState(null);
+  const [loading, setLoading] = useState(true);
+  const [error, setError] = useState('');
+
+  useEffect(() => {
+    let cancelled = false;
+    (async () => {
+      try {
+        const res = await getPublicTransparency();
+        if (!cancelled) setData(res.transparency);
+      } catch (err) {
+        if (!cancelled) setError('Could not load transparency data right now.');
+      } finally {
+        if (!cancelled) setLoading(false);
+      }
+    })();
+    return () => { cancelled = true; };
+  }, []);
 
   const cardStyle = {
     background: tokens.surface,
@@ -51,6 +46,26 @@ export default function TransparencyPage() {
     boxShadow: '0 10px 34px rgba(27,35,64,0.08), 0 2px 8px rgba(27,35,64,0.04)',
   };
 
+  if (loading) {
+    return (
+      <div style={{ padding: '80px 24px', textAlign: 'center', color: tokens.inkSoft, fontSize: 14 }}>
+        Loading transparency data…
+      </div>
+    );
+  }
+
+  if (error || !data) {
+    return (
+      <div style={{ padding: '80px 24px', textAlign: 'center', color: tokens.inkSoft, fontSize: 14 }}>
+        {error || 'No data available yet.'}
+      </div>
+    );
+  }
+
+  const { totalAllTime, resolvedPct, categoriesRepresented, monthly, byCategory } = data;
+  const maxCat = byCategory.length ? Math.max(...byCategory.map(c => c.count)) : 1;
+  const maxMonth = monthly.length ? Math.max(...monthly.map(m => m.total), 1) : 1;
+
   return (
     <div className="ech-step container mx-auto" style={{ padding: '44px 24px', maxWidth: 820 }}>
       <div style={{ textAlign: 'center', marginBottom: 34 }}>
@@ -58,17 +73,17 @@ export default function TransparencyPage() {
           <svg width="12" height="12" viewBox="0 0 24 24" fill="none"><path d="M3 12h4l3 8 4-16 3 8h4" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round" /></svg>
           Public, aggregate, anonymous
         </span>
-        <h1 style={{ fontFamily: "'Fraunces',serif", fontWeight: 700, fontSize: 32, color: tokens.ink, margin: '0 0 10px', letterSpacing: '-0.01em' }}>Proof this actually works</h1>
+        <h1 style={{ fontFamily: "'Fraunces',serif", fontWeight: 700, fontSize: 'clamp(24px,6vw,32px)', color: tokens.ink, margin: '0 0 10px', letterSpacing: '-0.01em' }}>Proof this actually works</h1>
         <p style={{ color: tokens.inkSoft, fontSize: 15.5, maxWidth: 480, margin: '0 auto', lineHeight: 1.5 }}>
           No names, no individual stories — just the numbers, so you can see this isn't a form that disappears into a void.
         </p>
       </div>
 
-      <div style={{ display: 'grid', gridTemplateColumns: 'repeat(3,1fr)', gap: 14, marginBottom: 28 }}>
+      <div style={{ display: 'grid', gridTemplateColumns: 'repeat(auto-fit,minmax(150px,1fr))', gap: 14, marginBottom: 28 }}>
         {[
           { n: totalAllTime, l: 'Echoes sent, all time' },
-          { n: `${resolvedPct}%`, l: 'Resolved or answered' },
-          { n: `${avgDays}d`, l: 'Average response time' },
+          { n: `${resolvedPct}%`, l: 'Resolved' },
+          { n: categoriesRepresented, l: 'Categories represented' },
         ].map((s, i) => (
           <div key={s.l} className="ech-chip" style={{ animationDelay: `${i * 50}ms`, background: tokens.surface, border: `1.5px solid ${tokens.border}`, borderRadius: 16, padding: '22px 18px', textAlign: 'center', boxShadow: '0 6px 18px rgba(27,35,64,0.06)' }}>
             <div style={{ fontFamily: "'Fraunces',serif", fontWeight: 700, fontSize: 30, color: tokens.wax }}>{s.n}</div>
@@ -80,44 +95,60 @@ export default function TransparencyPage() {
       <div className="ech-card" style={{ ...cardStyle, marginBottom: 22 }}>
         <div style={{ fontFamily: "'Fraunces',serif", fontWeight: 600, fontSize: 17, color: tokens.ink, marginBottom: 4 }}>Echoes over time</div>
         <div style={{ fontSize: 12.5, color: tokens.inkSoft, marginBottom: 20 }}>Total sent each month, and how many were resolved.</div>
-        <div style={{ display: 'flex', alignItems: 'flex-end', gap: 18, height: 140, paddingBottom: 4 }}>
-          {monthly.map((m, i) => (
-            <div key={m.m} className="ech-chip" style={{ animationDelay: `${i * 60}ms`, flex: 1, display: 'flex', flexDirection: 'column', alignItems: 'center', gap: 6, height: '100%', justifyContent: 'flex-end' }}>
-              <div style={{ width: '100%', position: 'relative', height: `${(m.total / maxMonth) * 100}%`, minHeight: 4, background: tokens.paperDeep, borderRadius: '6px 6px 0 0', display: 'flex', alignItems: 'flex-end', overflow: 'hidden' }}>
-                <div style={{ width: '100%', height: `${(m.resolved / m.total) * 100}%`, background: `linear-gradient(180deg, ${tokens.waxLight}, ${tokens.wax})`, borderRadius: '6px 6px 0 0' }} />
-              </div>
-              <span style={{ fontSize: 11, color: tokens.inkFaint }}>{m.m}</span>
+        {monthly.length === 0 ? (
+          <div style={{ height: 80, display: 'flex', alignItems: 'center', justifyContent: 'center', fontSize: 12.5, color: tokens.inkFaint }}>
+            No echoes yet in the last 6 months.
+          </div>
+        ) : (
+          <>
+            <div style={{ display: 'flex', alignItems: 'flex-end', gap: 18, height: 140, paddingBottom: 4 }}>
+              {monthly.map((m, i) => (
+                <div key={m.month + i} className="ech-chip" style={{ animationDelay: `${i * 60}ms`, flex: 1, display: 'flex', flexDirection: 'column', alignItems: 'center', gap: 6, height: '100%', justifyContent: 'flex-end' }}>
+                  <div style={{ width: '100%', position: 'relative', height: `${(m.total / maxMonth) * 100}%`, minHeight: 4, background: tokens.paperDeep, borderRadius: '6px 6px 0 0', display: 'flex', alignItems: 'flex-end', overflow: 'hidden' }}>
+                    <div style={{ width: '100%', height: `${m.total > 0 ? (m.resolved / m.total) * 100 : 0}%`, background: `linear-gradient(180deg, ${tokens.waxLight}, ${tokens.wax})`, borderRadius: '6px 6px 0 0' }} />
+                  </div>
+                  <span style={{ fontSize: 11, color: tokens.inkFaint }}>{m.month}</span>
+                </div>
+              ))}
             </div>
-          ))}
-        </div>
-        <div style={{ display: 'flex', gap: 16, marginTop: 14, fontSize: 12, color: tokens.inkSoft }}>
-          <span style={{ display: 'flex', alignItems: 'center', gap: 6 }}><span style={{ width: 10, height: 10, borderRadius: 3, background: tokens.wax, display: 'inline-block' }} />Resolved</span>
-          <span style={{ display: 'flex', alignItems: 'center', gap: 6 }}><span style={{ width: 10, height: 10, borderRadius: 3, background: tokens.paperDeep, display: 'inline-block' }} />Total sent</span>
-        </div>
+            <div style={{ display: 'flex', gap: 16, marginTop: 14, fontSize: 12, color: tokens.inkSoft }}>
+              <span style={{ display: 'flex', alignItems: 'center', gap: 6 }}><span style={{ width: 10, height: 10, borderRadius: 3, background: tokens.wax, display: 'inline-block' }} />Resolved</span>
+              <span style={{ display: 'flex', alignItems: 'center', gap: 6 }}><span style={{ width: 10, height: 10, borderRadius: 3, background: tokens.paperDeep, display: 'inline-block' }} />Total sent</span>
+            </div>
+          </>
+        )}
       </div>
 
       <div className="ech-card" style={{ ...cardStyle, marginBottom: 22 }}>
         <div style={{ fontFamily: "'Fraunces',serif", fontWeight: 600, fontSize: 17, color: tokens.ink, marginBottom: 4 }}>What people are echoing about</div>
-        <div style={{ fontSize: 12.5, color: tokens.inkSoft, marginBottom: 20 }}>All-time totals by category.</div>
-        {byCategory.map((c, i) => (
-          <div key={c.cat} className="ech-chip" style={{ animationDelay: `${i * 45}ms`, display: 'flex', alignItems: 'center', gap: 12, marginBottom: 12 }}>
-            <div style={{ width: 30, height: 30, borderRadius: 9, background: tokens.paper, display: 'flex', alignItems: 'center', justifyContent: 'center', flexShrink: 0 }}>
-              <CatIcon name={c.cat} color={tokens.waxDeep} />
-            </div>
-            <div style={{ fontSize: 13, color: tokens.ink, width: 150, flexShrink: 0 }}>{c.cat}</div>
-            <div style={{ flex: 1, height: 10, background: tokens.paperDeep, borderRadius: 999, overflow: 'hidden' }}>
-              <div style={{ width: `${(c.count / maxCat) * 100}%`, height: '100%', background: `linear-gradient(90deg, ${tokens.waxLight}, ${tokens.wax})`, borderRadius: 999 }} />
-            </div>
-            <div style={{ fontSize: 12.5, color: tokens.inkSoft, width: 26, textAlign: 'right', flexShrink: 0 }}>{c.count}</div>
+        <div style={{ fontSize: 12.5, color: tokens.inkSoft, marginBottom: 20 }}>
+          All-time totals by category — only shown once a category has 5 or more echoes, so no single report stands out.
+        </div>
+        {byCategory.length === 0 ? (
+          <div style={{ padding: '20px 0', textAlign: 'center', fontSize: 12.5, color: tokens.inkFaint }}>
+            No category has reached the anonymity threshold yet.
           </div>
-        ))}
+        ) : (
+          byCategory.map((c, i) => (
+            <div key={c.category} className="ech-chip" style={{ animationDelay: `${i * 45}ms`, display: 'flex', alignItems: 'center', gap: 12, marginBottom: 12 }}>
+              <div style={{ width: 30, height: 30, borderRadius: 9, background: tokens.paper, display: 'flex', alignItems: 'center', justifyContent: 'center', flexShrink: 0 }}>
+                <CatIcon name={c.category} color={tokens.waxDeep} />
+              </div>
+              <div style={{ fontSize: 13, color: tokens.ink, width: 150, flexShrink: 0 }}>{c.category}</div>
+              <div style={{ flex: 1, height: 10, background: tokens.paperDeep, borderRadius: 999, overflow: 'hidden' }}>
+                <div style={{ width: `${(c.count / maxCat) * 100}%`, height: '100%', background: `linear-gradient(90deg, ${tokens.waxLight}, ${tokens.wax})`, borderRadius: 999 }} />
+              </div>
+              <div style={{ fontSize: 12.5, color: tokens.inkSoft, width: 26, textAlign: 'right', flexShrink: 0 }}>{c.count}</div>
+            </div>
+          ))
+        )}
       </div>
 
       <div style={{
         textAlign: 'center', padding: '22px 24px', borderRadius: 16, background: tokens.waxSoft,
         border: `1.5px dashed ${tokens.wax}`, color: tokens.waxDeep, fontSize: 13.5, lineHeight: 1.6,
       }}>
-        These numbers update automatically as echoes come in and get resolved — nothing here is manually curated, and nothing here can be traced back to who sent what.
+        These numbers are pulled live from the database — nothing here is manually curated, and category breakdowns only appear once 5 or more echoes share that category, so nothing here can be traced back to who sent what.
       </div>
     </div>
   );
