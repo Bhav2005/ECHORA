@@ -1,116 +1,450 @@
-import React, { useRef } from 'react';
+import React, { useState, useEffect, useRef } from 'react';
+import { submitComplaint } from '../api/complaintApi';
+import { SealStamp } from './EchoMark';
 import { tokens } from '../styles/tokens';
 
-// Deterministic pseudo-randomness so the same seal instance doesn't
-// re-jitter on every re-render, but different seals still look distinct.
-function seededRandom(seed) {
-  let s = seed;
-  return () => {
-    s = (s * 9301 + 49297) % 233280;
-    return s / 233280;
+const CATEGORIES = [
+  'Academics',
+  'Harassment',
+  'Hostel & Facilities',
+  'Faculty conduct',
+  'Finance & fees',
+  'Safety',
+  'Discrimination',
+  'Other'
+];
+
+const DEPARTMENTS = [
+  'General',
+  'Student Affairs',
+  'Administration',
+  'Computer Science & Engineering',
+  'Mechanical & Civil Engineering',
+  'Science',
+  'Arts & Humanities',
+  'Finance',
+  'Human Resources',
+  'Security',
+  'Library Services'
+];
+
+const BUILDINGS = [
+  'Not applicable',
+  'Academic Block',
+  'Admin Block',
+  'Hostel Block A',
+  'Hostel Block B',
+  'Hostel Block C',
+  'Library',
+  'Sports Complex',
+  'Cafeteria',
+  'Off-campus'
+];
+
+// Minimal category icons from demo
+function CatIcon({ name, color }) {
+  const p = { stroke: color, strokeWidth: 1.7, strokeLinecap: 'round', strokeLinejoin: 'round', fill: 'none' };
+  const icons = {
+    'Academics': <svg width="18" height="18" viewBox="0 0 20 20"><path d="M4 6.5l6-2.5 6 2.5-6 2.5-6-2.5z M4 6.5v5c0 1 2.5 2 6 2s6-1 6-2v-5" {...p} /></svg>,
+    'Harassment': <svg width="18" height="18" viewBox="0 0 20 20"><path d="M10 2.5l6 2.5v4c0 4-2.5 6.5-6 8-3.5-1.5-6-4-6-8v-4l6-2.5z M10 9v3" {...p} /></svg>,
+    'Hostel & Facilities': <svg width="18" height="18" viewBox="0 0 20 20"><path d="M3 10l7-6 7 6 M5 9v6.5h10V9" {...p} /></svg>,
+    'Faculty conduct': <svg width="18" height="18" viewBox="0 0 20 20"><path d="M10 10a3 3 0 1 0 0-6 3 3 0 0 0 0 6z M4.5 16c1-3 3-4.5 5.5-4.5s4.5 1.5 5.5 4.5" {...p} /></svg>,
+    'Finance & fees': <svg width="18" height="18" viewBox="0 0 20 20"><path d="M10 3v14 M13.5 6.2c0-1.2-1.6-2.2-3.5-2.2s-3.5 1-3.5 2.2 1.6 1.8 3.5 1.8 3.5.7 3.5 1.9-1.6 2.1-3.5 2.1-3.5-.9-3.5-2.1" {...p} /></svg>,
+    'Safety': <svg width="18" height="18" viewBox="0 0 20 20"><path d="M10 2.5l6 2.5v4c0 4-2.5 6.5-6 8-3.5-1.5-6-4-6-8v-4l6-2.5z M7.3 10l1.8 1.8 3.6-3.6" {...p} /></svg>,
+    'Discrimination': <svg width="18" height="18" viewBox="0 0 20 20"><path d="M10 3v13 M4 16h12 M5.5 7l-2.5 5h5l-2.5-5z M14.5 7L12 12h5l-2.5-5z M10 3l-4.5 4M10 3l4.5 4" {...p} /></svg>,
+    'Other': <svg width="18" height="18" viewBox="0 0 20 20"><path d="M6 10a1.1 1.1 0 1 1-2.2 0A1.1 1.1 0 0 1 6 10z M11.1 10a1.1 1.1 0 1 1-2.2 0 1.1 1.1 0 0 1 2.2 0z M16.2 10a1.1 1.1 0 1 1-2.2 0 1.1 1.1 0 0 1 2.2 0z" fill={color} stroke="none" /></svg>,
   };
+  return icons[name] || icons['Other'];
 }
 
-// A slightly irregular blob path standing in for a hand-pressed wax edge —
-// eight control points nudged in/out from a perfect circle, rounded with
-// smooth curves so it still reads as "seal," just not machine-perfect.
-function organicEdgePath(seed, radius = 47, cx = 50, cy = 50, wobble = 3.2) {
-  const rand = seededRandom(seed);
-  const points = 8;
-  const pts = [];
-  for (let i = 0; i < points; i++) {
-    const angle = (i / points) * Math.PI * 2;
-    const r = radius + (rand() - 0.5) * wobble * 2;
-    pts.push([cx + Math.cos(angle) * r, cy + Math.sin(angle) * r]);
-  }
-  let d = `M ${pts[0][0]},${pts[0][1]} `;
-  for (let i = 0; i < points; i++) {
-    const [cx0, cy0] = pts[i];
-    const [cx1, cy1] = pts[(i + 1) % points];
-    const mx = (cx0 + cx1) / 2;
-    const my = (cy0 + cy1) / 2;
-    d += `Q ${cx0},${cy0} ${mx},${my} `;
-  }
-  d += 'Z';
-  return d;
-}
+export default function ComplaintForm({ cryptoTokens, onReset }) {
+  const [category, setCategory] = useState('');
+  const [department, setDepartment] = useState(DEPARTMENTS[0]);
+  const [building, setBuilding] = useState(BUILDINGS[0]);
+  const [content, setContent] = useState('');
+  const [evidence, setEvidence] = useState(null);
+  const [mailboxId, setMailboxId] = useState('');
+  const [urgent, setUrgent] = useState(false);
+  const [copied, setCopied] = useState(false);
+  const [loading, setLoading] = useState(false);
+  const [error, setError] = useState('');
+  const [successData, setSuccessData] = useState(null);
+  
+  const fileInputRef = useRef(null);
 
-// Per-category outer silhouette, used only where a category is known (the
-// submission confirmation) — everywhere else falls back to the organic
-// circular blob so the seal still feels hand-pressed without needing context.
-const CATEGORY_SHAPES = {
-  'Academics': (cx, cy, r) => `M ${cx} ${cy - r} L ${cx + r * 0.87} ${cy - r * 0.5} L ${cx + r * 0.87} ${cy + r * 0.5} L ${cx} ${cy + r} L ${cx - r * 0.87} ${cy + r * 0.5} L ${cx - r * 0.87} ${cy - r * 0.5} Z`,
-  'Harassment': (cx, cy, r) => `M ${cx} ${cy - r} C ${cx + r * 0.9} ${cy - r * 0.7} ${cx + r} ${cy - r * 0.1} ${cx + r * 0.6} ${cy + r * 0.5} C ${cx + r * 0.3} ${cy + r * 0.9} ${cx} ${cy + r} ${cx} ${cy + r} C ${cx} ${cy + r} ${cx - r * 0.3} ${cy + r * 0.9} ${cx - r * 0.6} ${cy + r * 0.5} C ${cx - r} ${cy - r * 0.1} ${cx - r * 0.9} ${cy - r * 0.7} ${cx} ${cy - r} Z`,
-  'Faculty complaint': (cx, cy, r) => `M ${cx} ${cy - r} C ${cx + r * 0.9} ${cy - r * 0.7} ${cx + r} ${cy - r * 0.1} ${cx + r * 0.6} ${cy + r * 0.5} C ${cx + r * 0.3} ${cy + r * 0.9} ${cx} ${cy + r} ${cx} ${cy + r} C ${cx} ${cy + r} ${cx - r * 0.3} ${cy + r * 0.9} ${cx - r * 0.6} ${cy + r * 0.5} C ${cx - r} ${cy - r * 0.1} ${cx - r * 0.9} ${cy - r * 0.7} ${cx} ${cy - r} Z`,
-  'Hostel & Facilities': (cx, cy, r) => `M ${cx} ${cy - r} L ${cx + r * 0.95} ${cy - r * 0.15} L ${cx + r * 0.65} ${cy + r * 0.9} L ${cx - r * 0.65} ${cy + r * 0.9} L ${cx - r * 0.95} ${cy - r * 0.15} Z`,
-  'Finance & fees': (cx, cy, r) => {
-    const pts = [];
-    for (let i = 0; i < 8; i++) {
-      const a = (i / 8) * Math.PI * 2 - Math.PI / 8;
-      pts.push(`${cx + Math.cos(a) * r},${cy + Math.sin(a) * r}`);
+  // Generate random 16-character hex Mailbox ID on mount
+  useEffect(() => {
+    const randomHex = Array.from({ length: 8 }, () => 
+      Math.floor(Math.random() * 256).toString(16).padStart(2, '0')
+    ).join('');
+    setMailboxId(`box_${randomHex}`);
+  }, []);
+
+  const handleCopyMailbox = () => {
+    navigator.clipboard.writeText(mailboxId);
+    setCopied(true);
+    setTimeout(() => setCopied(false), 2000);
+  };
+
+  const handleSubmit = async (e) => {
+    e.preventDefault();
+    if (!content || !category) return;
+
+    if (!cryptoTokens?.tokenMessage || !cryptoTokens?.tokenSignature) {
+      setError('Your anonymous verification token is missing or expired. Please restart the verification.');
+      return;
     }
-    return `M ${pts.join(' L ')} Z`;
-  },
-};
 
-export function EchoMark({ size = 30, animate = false }) {
+    setLoading(true);
+    setError('');
+
+    const formData = new FormData();
+    formData.append('category', category);
+    formData.append('department', department);
+    formData.append('building', building);
+    formData.append('content', content + (urgent ? '\n\n[URGENT ATTENTION FLAG ACTIVATED]' : ''));
+    formData.append('tokenMessage', cryptoTokens.tokenMessage);
+    formData.append('tokenSignature', cryptoTokens.tokenSignature);
+    formData.append('mailboxId', mailboxId);
+    if (evidence) {
+      formData.append('evidence', evidence);
+    }
+
+    try {
+      const result = await submitComplaint(formData);
+      setSuccessData({
+        complaintId: result.complaintId,
+        mailboxId: result.mailboxId
+      });
+    } catch (err) {
+      setError(err.response?.data?.error || 'Failed to submit complaint. Please verify your anonymous token and try again.');
+    } finally {
+      setLoading(false);
+    }
+  };
+
+  const removeFile = () => setEvidence(null);
+  const formatSize = (bytes) => bytes < 1024 * 1024 ? `${Math.round(bytes / 1024)} KB` : `${(bytes / (1024 * 1024)).toFixed(1)} MB`;
+
+  const inputStyle = {
+    width: '100%', 
+    padding: '13px 15px', 
+    fontFamily: "'Work Sans',sans-serif", 
+    fontSize: 14.5,
+    color: tokens.ink, 
+    background: tokens.paper, 
+    border: `1.5px solid ${tokens.border}`,
+    borderRadius: 10, 
+    outline: 'none', 
+    boxSizing: 'border-box',
+  };
+
+  const btnPrimary = {
+    width: '100%', 
+    padding: '14px 20px', 
+    borderRadius: 10, 
+    border: 'none',
+    fontSize: 15, 
+    fontWeight: 600, 
+    background: tokens.wax, 
+    color: '#FCF5EC', 
+    cursor: 'pointer',
+    letterSpacing: '0.01em',
+    transition: 'all 0.2s ease',
+  };
+
+  const cardStyle = {
+    background: tokens.surface, 
+    border: `1.5px solid ${tokens.border}`, 
+    borderRadius: 22,
+    padding: 34, 
+    boxShadow: '0 10px 34px rgba(27,35,64,0.08), 0 2px 8px rgba(27,35,64,0.04)',
+  };
+
+  if (successData) {
+    return (
+      <div className="w-full max-w-xl mx-auto" style={{ animation: 'stepEnter 0.4s ease' }}>
+        <div className="ech-card" style={cardStyle}>
+          <div style={{ textAlign: 'center', marginBottom: 20 }}>
+            <div style={{ display: 'flex', justifyContent: 'center', marginBottom: 18 }}>
+              <SealStamp state="sealed" size={76} pop category={category} />
+            </div>
+            <h2 style={{ fontFamily: "'Fraunces',serif", fontWeight: 600, fontSize: 22, color: tokens.ink, margin: '0 0 6px' }}>
+              Your echo is out there
+            </h2>
+            <p style={{ color: tokens.inkSoft, fontSize: 13.5, lineHeight: 1.5 }}>
+              Save this ID — it's the only way to follow up. We cannot recover it for you.
+            </p>
+          </div>
+          <div style={{
+            fontFamily: "'IBM Plex Mono',monospace", 
+            fontSize: 20, 
+            textAlign: 'center', 
+            background: tokens.paper,
+            border: `1.5px dashed ${tokens.wax}`, 
+            borderRadius: 12, 
+            padding: '18px 10px', 
+            marginBottom: 20, 
+            letterSpacing: '0.04em', 
+            color: tokens.ink,
+            display: 'flex',
+            alignItems: 'center',
+            justifyContent: 'center',
+            gap: 10,
+          }}>
+            <span style={{ selectAll: 'all' }}>{successData.mailboxId}</span>
+            <button
+              onClick={handleCopyMailbox}
+              style={{
+                background: 'none',
+                border: 'none',
+                cursor: 'pointer',
+                color: tokens.wax,
+                fontSize: 14,
+                fontWeight: 600,
+                padding: '4px 8px',
+                borderRadius: 6,
+                backgroundColor: tokens.waxSoft,
+              }}
+            >
+              {copied ? 'Copied' : 'Copy'}
+            </button>
+          </div>
+          <button className="ech-btn-primary" style={btnPrimary} onClick={onReset}>
+            Send another
+          </button>
+        </div>
+      </div>
+    );
+  }
+
+  const ready = category && content.length >= 10;
+  const needsCategory = !category;
+  const needsDetail = content.length < 10;
+
   return (
-    <svg width={size} height={size} viewBox="0 0 40 40" fill="none" style={{ overflow: 'visible', flexShrink: 0 }}>
-      {animate && (
-        <>
-          <circle cx="20" cy="20" r="9" stroke={tokens.wax} strokeWidth="1.3" fill="none" style={{ animation: 'echoRipple 2.4s ease-out infinite', transformOrigin: '20px 20px' }} />
-          <circle cx="20" cy="20" r="9" stroke={tokens.wax} strokeWidth="1.3" fill="none" style={{ animation: 'echoRipple 2.4s ease-out infinite 0.8s', transformOrigin: '20px 20px' }} />
-        </>
-      )}
-      <circle cx="20" cy="20" r="16" fill={tokens.waxSoft} stroke={tokens.wax} strokeWidth="1.6" />
-      <path d="M13.5 20.5l4 4L27 15" stroke={tokens.waxDeep} strokeWidth="2.4" strokeLinecap="round" strokeLinejoin="round" />
-    </svg>
-  );
-}
+    <div className="w-full max-w-xl mx-auto" style={{ animation: 'stepEnter 0.4s ease' }}>
+      <div className="ech-card" style={cardStyle}>
+        <div style={{ textAlign: 'center', marginBottom: 24 }}>
+          <h2 style={{ fontFamily: "'Fraunces',serif", fontWeight: 600, fontSize: 21, color: tokens.ink, margin: '0 0 6px' }}>
+            Share your grievance
+          </h2>
+          <p style={{ color: tokens.inkSoft, fontSize: 13.5 }}>
+            Your name and email are never attached to this.
+          </p>
+        </div>
 
-export function SealStamp({ state = 'empty', size = 64, pop = false, category = null }) {
-  const sealed = state === 'sealed';
-  const pressed = state === 'pressed';
-  const seedRef = useRef(Math.floor(Math.random() * 100000));
-  const uid = useRef('seal' + Math.random().toString(36).slice(2, 8)).current;
-
-  const shapeFn = category && CATEGORY_SHAPES[category];
-  const edgePath = shapeFn
-    ? shapeFn(50, 50, 46)
-    : organicEdgePath(seedRef.current, 46);
-  const innerRingPath = shapeFn
-    ? shapeFn(50, 50, 38)
-    : organicEdgePath(seedRef.current + 1, 38, 50, 50, 2.4);
-
-  return (
-    <div className={pop ? 'ech-seal-pop' : ''} style={{
-      width: size, height: size, borderRadius: '50%', display: 'flex',
-      alignItems: 'center', justifyContent: 'center', position: 'relative',
-      transform: pressed ? 'scale(.86)' : 'scale(1)',
-      transition: 'transform .35s cubic-bezier(.34,1.56,.64,1)',
-      flexShrink: 0,
-    }}>
-      <svg width={size} height={size} viewBox="0 0 100 100" style={{ position: 'absolute', inset: 0 }}>
-        <defs>
-          <radialGradient id={uid} cx="35%" cy="30%" r="75%">
-            <stop offset="0%" stopColor={sealed ? tokens.waxLight : tokens.paperDeep} />
-            <stop offset="55%" stopColor={sealed ? tokens.wax : tokens.paper} />
-            <stop offset="100%" stopColor={sealed ? tokens.waxDeep : tokens.borderSoft} />
-          </radialGradient>
-        </defs>
-        <path d={edgePath} fill={`url(#${uid})`} stroke={sealed ? tokens.waxDeep : tokens.border} strokeWidth="1.5" strokeLinejoin="round" />
-        {sealed && (
-          <>
-            <path d={innerRingPath} fill="none" stroke="rgba(255,255,255,0.28)" strokeWidth="1" strokeDasharray="1.5 3.4" strokeLinejoin="round" />
-            <circle cx="50" cy="50" r="30" fill="none" stroke="rgba(0,0,0,0.12)" strokeWidth="1" />
-          </>
+        {error && (
+          <div style={{
+            background: 'rgba(239, 68, 68, 0.1)', 
+            border: '1px solid rgba(239, 68, 68, 0.2)', 
+            color: '#B4453A', 
+            fontSize: 13.5, 
+            padding: '12px 16px', 
+            borderRadius: 10, 
+            marginBottom: 18,
+          }}>
+            {error}
+          </div>
         )}
-      </svg>
-      <svg width={size * 0.4} height={size * 0.4} viewBox="0 0 24 24" fill="none" style={{ position: 'relative' }}>
-        {sealed
-          ? <path d="M5 13l4 4L19 7" stroke="#FCF5EC" strokeWidth="2.6" strokeLinecap="round" strokeLinejoin="round" />
-          : <circle cx="12" cy="12" r="6" stroke={tokens.inkFaint} strokeWidth="1.5" />}
-      </svg>
+
+        <form onSubmit={handleSubmit}>
+          <label style={{ display: 'block', fontSize: 12.5, fontWeight: 600, color: tokens.ink, marginBottom: 9, letterSpacing: '0.01em' }}>
+            CATEGORY
+          </label>
+          <div style={{ display: 'grid', gridTemplateColumns: 'repeat(auto-fill,minmax(148px,1fr))', gap: 9, marginBottom: 20 }}>
+            {CATEGORIES.map((c, i) => {
+              const active = category === c;
+              return (
+                <button 
+                  key={c} 
+                  type="button"
+                  className="ech-chip ech-chip-btn" 
+                  style={{ animationDelay: `${i * 35}ms`, border: 'none', background: 'none', padding: 0 }} 
+                  onClick={() => setCategory(c)}
+                >
+                  <span style={{
+                    display: 'flex', 
+                    alignItems: 'center', 
+                    gap: 8, 
+                    padding: '11px 12px', 
+                    borderRadius: 10, 
+                    fontSize: 13, 
+                    fontWeight: 500, 
+                    textAlign: 'left', 
+                    cursor: 'pointer',
+                    width: '100%',
+                    border: `1.5px solid ${active ? tokens.wax : tokens.border}`,
+                    background: active ? tokens.waxSoft : tokens.paper,
+                    color: active ? tokens.waxDeep : tokens.inkSoft,
+                  }}>
+                    <CatIcon name={c} color={active ? tokens.waxDeep : tokens.inkFaint} />
+                    {c}
+                  </span>
+                </button>
+              );
+            })}
+          </div>
+
+          <label style={{ display: 'block', fontSize: 12.5, fontWeight: 600, color: tokens.ink, marginBottom: 7, letterSpacing: '0.01em' }}>
+            DEPARTMENT / FACULTY
+          </label>
+          <select
+            className="ech-input"
+            value={department}
+            onChange={e => setDepartment(e.target.value)}
+            style={{ 
+              ...inputStyle, 
+              marginBottom: 20, 
+              appearance: 'none', 
+              backgroundImage: `url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='16' height='16' viewBox='0 0 24 24' fill='none' stroke='%238A90A8' stroke-width='2'%3E%3Cpath d='M6 9l6 6 6-6'/%3E%3C/svg%3E")`, 
+              backgroundRepeat: 'no-repeat', 
+              backgroundPosition: 'right 14px center', 
+              cursor: 'pointer' 
+            }}
+          >
+            {DEPARTMENTS.map(d => <option key={d} value={d}>{d}</option>)}
+          </select>
+
+          <label style={{ display: 'block', fontSize: 12.5, fontWeight: 600, color: tokens.ink, marginBottom: 7, letterSpacing: '0.01em' }}>
+            WHICH BUILDING / LOCATION
+          </label>
+          <select
+            className="ech-input"
+            value={building}
+            onChange={e => setBuilding(e.target.value)}
+            style={{ 
+              ...inputStyle, 
+              marginBottom: 20, 
+              appearance: 'none', 
+              backgroundImage: `url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='16' height='16' viewBox='0 0 24 24' fill='none' stroke='%238A90A8' stroke-width='2'%3E%3Cpath d='M6 9l6 6 6-6'/%3E%3C/svg%3E")`, 
+              backgroundRepeat: 'no-repeat', 
+              backgroundPosition: 'right 14px center', 
+              cursor: 'pointer' 
+            }}
+          >
+            {BUILDINGS.map(b => <option key={b} value={b}>{b}</option>)}
+          </select>
+
+          <label style={{ display: 'block', fontSize: 12.5, fontWeight: 600, color: tokens.ink, marginBottom: 7, letterSpacing: '0.01em' }}>
+            WHAT HAPPENED
+          </label>
+          <textarea 
+            className="ech-input" 
+            value={content} 
+            onChange={e => setContent(e.target.value)} 
+            placeholder="Describe the situation — what, where, when."
+            required
+            style={{ ...inputStyle, minHeight: 108, marginBottom: 20, fontFamily: "'Work Sans',sans-serif", lineHeight: 1.5 }} 
+          />
+
+          <label style={{ display: 'block', fontSize: 12.5, fontWeight: 600, color: tokens.ink, marginBottom: 7, letterSpacing: '0.01em' }}>
+            ATTACH EVIDENCE <span style={{ fontWeight: 400, color: tokens.inkFaint, textTransform: 'none', letterSpacing: 0 }}>(optional — photo, screenshot, pdf)</span>
+          </label>
+          <input 
+            ref={fileInputRef} 
+            type="file" 
+            accept="image/*,.pdf,.doc,.docx" 
+            style={{ display: 'none' }} 
+            onChange={e => { 
+              if(e.target.files.length) {
+                setEvidence(e.target.files[0]);
+              }
+              e.target.value = ''; 
+            }} 
+          />
+          <button
+            type="button"
+            onClick={() => fileInputRef.current?.click()}
+            style={{
+              width: '100%', 
+              padding: '16px', 
+              borderRadius: 10, 
+              border: `1.5px dashed ${tokens.border}`,
+              background: tokens.paper, 
+              color: tokens.inkSoft, 
+              fontFamily: "'Work Sans',sans-serif", 
+              fontSize: 13.5,
+              cursor: 'pointer', 
+              display: 'flex', 
+              alignItems: 'center', 
+              justifyContent: 'center', 
+              gap: 8, 
+              marginBottom: evidence ? 10 : 20,
+            }}
+          >
+            <svg width="16" height="16" viewBox="0 0 24 24" fill="none"><path d="M12 4v12m0 0l-4-4m4 4l4-4M5 18v1a2 2 0 002 2h10a2 2 0 002-2v-1" stroke={tokens.inkFaint} strokeWidth="2" strokeLinecap="round" strokeLinejoin="round" /></svg>
+            Click to attach evidence file
+          </button>
+          
+          {evidence && (
+            <div style={{ marginBottom: 20, display: 'flex', flexDirection: 'column', gap: 6 }}>
+              <div className="ech-chip" style={{ display: 'flex', alignItems: 'center', justifyContent: 'space-between', padding: '8px 12px', background: tokens.paper, border: `1px solid ${tokens.border}`, borderRadius: 8 }}>
+                <span style={{ fontSize: 12.5, color: tokens.ink, overflow: 'hidden', textOverflow: 'ellipsis', whiteSpace: 'nowrap' }}>
+                  {evidence.name} <span style={{ color: tokens.inkFaint }}>· {formatSize(evidence.size)}</span>
+                </span>
+                <button type="button" onClick={removeFile} style={{ border: 'none', background: 'none', cursor: 'pointer', color: tokens.inkFaint, fontSize: 16, lineHeight: 1, padding: '0 4px' }}>×</button>
+              </div>
+            </div>
+          )}
+
+          <button
+            type="button"
+            onClick={() => setUrgent(u => !u)}
+            style={{
+              width: '100%', 
+              display: 'flex', 
+              alignItems: 'center', 
+              gap: 12, 
+              textAlign: 'left', 
+              cursor: 'pointer',
+              padding: '13px 15px', 
+              borderRadius: 10, 
+              marginBottom: 20,
+              border: `1.5px solid ${urgent ? '#B4453A' : tokens.border}`,
+              background: urgent ? '#FBEAE7' : tokens.paper,
+              transition: 'all 0.15s ease',
+            }}
+          >
+            <span style={{
+              width: 20, 
+              height: 20, 
+              borderRadius: 6, 
+              flexShrink: 0, 
+              display: 'flex', 
+              alignItems: 'center', 
+              justifyContent: 'center',
+              border: `1.5px solid ${urgent ? '#B4453A' : tokens.inkFaint}`, 
+              background: urgent ? '#B4453A' : 'transparent',
+            }}>
+              {urgent && <svg width="12" height="12" viewBox="0 0 24 24" fill="none"><path d="M5 13l4 4L19 7" stroke="#fff" strokeWidth="3" strokeLinecap="round" strokeLinejoin="round" /></svg>}
+            </span>
+            <span>
+              <div style={{ fontSize: 13.5, fontWeight: 600, color: urgent ? '#B4453A' : tokens.ink }}>This needs urgent attention</div>
+              <div style={{ fontSize: 12, color: tokens.inkSoft, marginTop: 1 }}>Immediate safety risk — flagged echoes get reviewed first.</div>
+            </span>
+          </button>
+
+          <p style={{ fontSize: 12, color: ready ? tokens.safe : tokens.inkFaint, margin: '0 0 18px', minHeight: 16, textAlign: 'center' }}>
+            {ready
+              ? 'Ready to send.'
+              : needsCategory && needsDetail
+                ? 'Pick a category and add details (min 10 chars) to send.'
+                : needsCategory
+                  ? 'Pick a category above to send.'
+                  : `Add detail — ${10 - content.length} more character${10 - content.length === 1 ? '' : 's'} to go.`}
+          </p>
+
+          <button
+            type="submit"
+            disabled={!ready || loading}
+            className={ready ? 'ech-btn-primary ech-shine' : ''}
+            style={ready && !loading ? btnPrimary : { ...btnPrimary, background: tokens.border, color: tokens.inkFaint, cursor: 'not-allowed' }}
+          >
+            {loading ? 'Sealing...' : 'Seal and send my echo'}
+          </button>
+        </form>
+      </div>
     </div>
   );
 }
