@@ -1,6 +1,6 @@
 import axios from 'axios';
 
-const COMPLAINT_API_URL = import.meta.env.VITE_COMPLAINT_API_URL || 'http://localhost:3002';
+const COMPLAINT_API_URL = import.meta.env.VITE_COMPLAINT_API_URL || 'http://localhost:3003';
 
 const api = axios.create({
   baseURL: COMPLAINT_API_URL,

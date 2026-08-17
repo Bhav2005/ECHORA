@@ -56,9 +56,9 @@ services:
     container_name: echora-complaint-service
     restart: always
     ports:
-      - "3002:3002"
+      - "3003:3003"
     environment:
-      - PORT=3002
+      - PORT=3003
       - DB_HOST=complaint-db
       - DB_PORT=5432
       - DB_USER=postgres
@@ -79,7 +79,7 @@ services:
       - "5173:5173"
     environment:
       - VITE_IDENTITY_API_URL=http://localhost:3001
-      - VITE_COMPLAINT_API_URL=http://localhost:3002
+      - VITE_COMPLAINT_API_URL=http://localhost:3003
     depends_on:
       - identity-service
       - complaint-service
