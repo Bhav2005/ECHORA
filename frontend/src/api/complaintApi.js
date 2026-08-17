@@ -69,7 +69,7 @@ export const getPublicTransparency = async () => {
 };
 
 export const updateComplaintStatus = async (complaintId, status) => {
-  const response = await api.patch(`/api/complaints/${complaintId}/status`, { status });
+  const response = await api.patch(`/api/admin/complaints/${complaintId}/status`, { status });
   return response.data;
 };
 export default api;
