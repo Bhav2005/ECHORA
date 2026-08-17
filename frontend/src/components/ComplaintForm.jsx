@@ -24,17 +24,19 @@ const DEPARTMENTS = [
   'Arts & Humanities',
   'Finance',
   'Human Resources',
-  'Security',
   'Library Services'
 ];
 
 const BUILDINGS = [
   'Not applicable',
   'Academic Block',
+  '1st floor',
+  '2nd floor',
+  '3rd floor',
+  '4th floor',
   'Admin Block',
-  'Hostel Block A',
-  'Hostel Block B',
-  'Hostel Block C',
+  'Annex Block',
+  'Hostel Block',
   'Library',
   'Sports Complex',
   'Cafeteria',
