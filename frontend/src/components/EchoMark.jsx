@@ -1,6 +1,58 @@
 import React, { useRef } from 'react';
 import { tokens } from '../styles/tokens';
 
+// Deterministic pseudo-randomness so the same seal instance doesn't
+// re-jitter on every re-render, but different seals still look distinct.
+function seededRandom(seed) {
+  let s = seed;
+  return () => {
+    s = (s * 9301 + 49297) % 233280;
+    return s / 233280;
+  };
+}
+
+// A slightly irregular blob path standing in for a hand-pressed wax edge —
+// eight control points nudged in/out from a perfect circle, rounded with
+// smooth curves so it still reads as "seal," just not machine-perfect.
+function organicEdgePath(seed, radius = 47, cx = 50, cy = 50, wobble = 3.2) {
+  const rand = seededRandom(seed);
+  const points = 8;
+  const pts = [];
+  for (let i = 0; i < points; i++) {
+    const angle = (i / points) * Math.PI * 2;
+    const r = radius + (rand() - 0.5) * wobble * 2;
+    pts.push([cx + Math.cos(angle) * r, cy + Math.sin(angle) * r]);
+  }
+  let d = `M ${pts[0][0]},${pts[0][1]} `;
+  for (let i = 0; i < points; i++) {
+    const [cx0, cy0] = pts[i];
+    const [cx1, cy1] = pts[(i + 1) % points];
+    const mx = (cx0 + cx1) / 2;
+    const my = (cy0 + cy1) / 2;
+    d += `Q ${cx0},${cy0} ${mx},${my} `;
+  }
+  d += 'Z';
+  return d;
+}
+
+// Per-category outer silhouette, used only where a category is known (the
+// submission confirmation) — everywhere else falls back to the organic
+// circular blob so the seal still feels hand-pressed without needing context.
+const CATEGORY_SHAPES = {
+  'Academics': (cx, cy, r) => `M ${cx} ${cy - r} L ${cx + r * 0.87} ${cy - r * 0.5} L ${cx + r * 0.87} ${cy + r * 0.5} L ${cx} ${cy + r} L ${cx - r * 0.87} ${cy + r * 0.5} L ${cx - r * 0.87} ${cy - r * 0.5} Z`,
+  'Harassment': (cx, cy, r) => `M ${cx} ${cy - r} C ${cx + r * 0.9} ${cy - r * 0.7} ${cx + r} ${cy - r * 0.1} ${cx + r * 0.6} ${cy + r * 0.5} C ${cx + r * 0.3} ${cy + r * 0.9} ${cx} ${cy + r} ${cx} ${cy + r} C ${cx} ${cy + r} ${cx - r * 0.3} ${cy + r * 0.9} ${cx - r * 0.6} ${cy + r * 0.5} C ${cx - r} ${cy - r * 0.1} ${cx - r * 0.9} ${cy - r * 0.7} ${cx} ${cy - r} Z`,
+  'Safety': (cx, cy, r) => `M ${cx} ${cy - r} C ${cx + r * 0.9} ${cy - r * 0.7} ${cx + r} ${cy - r * 0.1} ${cx + r * 0.6} ${cy + r * 0.5} C ${cx + r * 0.3} ${cy + r * 0.9} ${cx} ${cy + r} ${cx} ${cy + r} C ${cx} ${cy + r} ${cx - r * 0.3} ${cy + r * 0.9} ${cx - r * 0.6} ${cy + r * 0.5} C ${cx - r} ${cy - r * 0.1} ${cx - r * 0.9} ${cy - r * 0.7} ${cx} ${cy - r} Z`,
+  'Hostel & Facilities': (cx, cy, r) => `M ${cx} ${cy - r} L ${cx + r * 0.95} ${cy - r * 0.15} L ${cx + r * 0.65} ${cy + r * 0.9} L ${cx - r * 0.65} ${cy + r * 0.9} L ${cx - r * 0.95} ${cy - r * 0.15} Z`,
+  'Finance & fees': (cx, cy, r) => {
+    const pts = [];
+    for (let i = 0; i < 8; i++) {
+      const a = (i / 8) * Math.PI * 2 - Math.PI / 8;
+      pts.push(`${cx + Math.cos(a) * r},${cy + Math.sin(a) * r}`);
+    }
+    return `M ${pts.join(' L ')} Z`;
+  },
+};
+
 export function EchoMark({ size = 30, animate = false }) {
   return (
     <svg width={size} height={size} viewBox="0 0 40 40" fill="none" style={{ overflow: 'visible', flexShrink: 0 }}>
@@ -16,10 +68,20 @@ export function EchoMark({ size = 30, animate = false }) {
   );
 }
 
-export function SealStamp({ state = 'empty', size = 64, pop = false }) {
+export function SealStamp({ state = 'empty', size = 64, pop = false, category = null }) {
   const sealed = state === 'sealed';
   const pressed = state === 'pressed';
+  const seedRef = useRef(Math.floor(Math.random() * 100000));
   const uid = useRef('seal' + Math.random().toString(36).slice(2, 8)).current;
+
+  const shapeFn = category && CATEGORY_SHAPES[category];
+  const edgePath = shapeFn
+    ? shapeFn(50, 50, 46)
+    : organicEdgePath(seedRef.current, 46);
+  const innerRingPath = shapeFn
+    ? shapeFn(50, 50, 38)
+    : organicEdgePath(seedRef.current + 1, 38, 50, 50, 2.4);
+
   return (
     <div className={pop ? 'ech-seal-pop' : ''} style={{
       width: size, height: size, borderRadius: '50%', display: 'flex',
@@ -36,10 +98,10 @@ export function SealStamp({ state = 'empty', size = 64, pop = false }) {
             <stop offset="100%" stopColor={sealed ? tokens.waxDeep : tokens.borderSoft} />
           </radialGradient>
         </defs>
-        <circle cx="50" cy="50" r="47" fill={`url(#${uid})`} stroke={sealed ? tokens.waxDeep : tokens.border} strokeWidth="1.5" />
+        <path d={edgePath} fill={`url(#${uid})`} stroke={sealed ? tokens.waxDeep : tokens.border} strokeWidth="1.5" strokeLinejoin="round" />
         {sealed && (
           <>
-            <circle cx="50" cy="50" r="39" fill="none" stroke="rgba(255,255,255,0.28)" strokeWidth="1" strokeDasharray="1.5 3.4" />
+            <path d={innerRingPath} fill="none" stroke="rgba(255,255,255,0.28)" strokeWidth="1" strokeDasharray="1.5 3.4" strokeLinejoin="round" />
             <circle cx="50" cy="50" r="30" fill="none" stroke="rgba(0,0,0,0.12)" strokeWidth="1" />
           </>
         )}
