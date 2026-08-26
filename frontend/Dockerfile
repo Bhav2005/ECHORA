@@ -1,13 +1,13 @@
-﻿FROM node:18-alpine
+FROM node:18-alpine
 
 WORKDIR /app
 
-COPY package*.json ./
+# Install serve globally to host the static HTML
+RUN npm install -g serve
 
-RUN npm install
-
-COPY . .
+# Copy only the static HTML file
+COPY index.html .
 
 EXPOSE 5173
 
-CMD ["npm", "run", "dev"]
+CMD ["serve", ".", "-p", "5173", "--no-clipboard"]
