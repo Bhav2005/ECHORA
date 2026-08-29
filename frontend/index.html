@@ -1295,6 +1295,78 @@
       border-color: var(--accent);
     }
 
+    /* Floating Glassmorphic Toast Notifications */
+    .toast-container {
+      position: fixed;
+      top: 24px;
+      right: 24px;
+      z-index: 9999;
+      display: flex;
+      flex-direction: column;
+      gap: 10px;
+      pointer-events: none;
+    }
+
+    .toast {
+      pointer-events: auto;
+      min-width: 280px;
+      max-width: 400px;
+      padding: 12px 18px;
+      border-radius: 16px;
+      background: rgba(255, 255, 255, 0.9);
+      border: 1px solid rgba(140, 99, 126, 0.22);
+      box-shadow: 0 16px 36px rgba(35, 24, 18, 0.14);
+      backdrop-filter: blur(16px);
+      color: var(--ink);
+      font-size: 0.84rem;
+      font-weight: 700;
+      display: flex;
+      align-items: center;
+      gap: 12px;
+      animation: toastIn 0.35s cubic-bezier(0.16, 1, 0.3, 1) forwards;
+      transition: all 0.3s ease;
+    }
+
+    .toast.toast-success {
+      border-left: 4px solid var(--moss);
+    }
+
+    .toast.toast-error {
+      border-left: 4px solid var(--coral);
+    }
+
+    .toast.toast-info {
+      border-left: 4px solid var(--accent);
+    }
+
+    .toast.toast-out {
+      animation: toastOut 0.3s ease forwards;
+    }
+
+    @keyframes toastIn {
+      from {
+        opacity: 0;
+        transform: translateY(-16px) scale(0.94);
+      }
+
+      to {
+        opacity: 1;
+        transform: translateY(0) scale(1);
+      }
+    }
+
+    @keyframes toastOut {
+      from {
+        opacity: 1;
+        transform: translateY(0) scale(1);
+      }
+
+      to {
+        opacity: 0;
+        transform: translateY(-12px) scale(0.92);
+      }
+    }
+
     .bar:hover {
       transform: translateY(-4px);
     }
@@ -2770,7 +2842,36 @@
         echoQuoteSourceEl.classList.remove('fade');
       }, 400);
     }
-    window.setInterval(rotateEchoQuote, 5000);
+    // Toast Notification System
+    function showToast(message, type = 'info', icon = '✨') {
+      let container = document.getElementById('toastContainer');
+      if (!container) {
+        container = document.createElement('div');
+        container.id = 'toastContainer';
+        container.className = 'toast-container';
+        document.body.appendChild(container);
+      }
+
+      const toast = document.createElement('div');
+      toast.className = `toast toast-${type}`;
+
+      const iconSpan = document.createElement('span');
+      iconSpan.style.fontSize = '1.1rem';
+      iconSpan.textContent = icon;
+
+      const msgSpan = document.createElement('span');
+      msgSpan.style.flex = '1';
+      msgSpan.textContent = message;
+
+      toast.appendChild(iconSpan);
+      toast.appendChild(msgSpan);
+      container.appendChild(toast);
+
+      setTimeout(() => {
+        toast.classList.add('toast-out');
+        setTimeout(() => toast.remove(), 300);
+      }, 3600);
+    }
 
     // ============================================================
     // CONFIG — point these at your running backend services.
@@ -2973,6 +3074,7 @@
         otpWrap.classList.remove('hidden');
         otpInput.value = '';
         setOtpStatus(`OTP sent to ${email}. Enter the 6-digit code below.`);
+        showToast(`OTP sent to ${email}`, 'info', '📩');
       } catch (err) {
         setOtpStatus(err.message, true);
       } finally {
@@ -3014,6 +3116,7 @@
         cryptoTokenMessage = tokenMessageHex;
         cryptoTokenSignature = tokenSignatureHex;
         setOtpStatus('Verified. Your echo is ready to send securely.');
+        showToast('Email affiliation verified! Cryptographic blind token generated.', 'success', '🛡️');
       } catch (err) {
         cryptoTokenMessage = null;
         cryptoTokenSignature = null;
@@ -3065,6 +3168,7 @@
       try {
         const result = await apiUpload(COMPLAINT_API, '/api/complaints', fd);
         setFormStatus(`Submitted securely. Your mailbox ID is ${result.mailboxId} — save it to track this echo.`);
+        showToast('Echo sealed & submitted securely!', 'success', '🔒');
 
         // Tokens are single-use; reset everything for the next submission.
         sessionToken = null;
@@ -3216,6 +3320,7 @@
         navigator.clipboard.writeText(viewedMailboxId).then(() => {
           const orig = copyMailboxBtn.textContent;
           copyMailboxBtn.textContent = '✓ Copied!';
+          showToast('Mailbox Key copied to clipboard!', 'success', '📋');
           setTimeout(() => copyMailboxBtn.textContent = orig, 2000);
         });
       });
@@ -3259,7 +3364,7 @@
           loggedInView.classList.remove('hidden');
         } else {
           loggedOutView.classList.remove('hidden');
-          loggedInView.classList.add('hidden');
+          loggedInView.classList.hidden = true;
         }
       }
     }
@@ -3413,6 +3518,7 @@
         await apiPatch(COMPLAINT_API, `/api/admin/complaints/${c.id}/status`, { status: newStatus }, {
           headers: { Authorization: `Bearer ${adminToken}` },
         });
+        showToast(`Case status updated to ${statusLabel(newStatus)}`, 'success', '✅');
         c.status = newStatus;
         chatCaseStatus.textContent = statusLabel(newStatus);
         chatCaseStatus.classList.toggle('alt', newStatus !== 'RESOLVED');
