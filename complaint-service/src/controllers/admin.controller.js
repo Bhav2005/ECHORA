@@ -79,7 +79,7 @@ const updateComplaintStatus = async (req, res) => {
   }
 
   // Validate status value
-  const allowedStatuses = ['PENDING', 'INVESTIGATING', 'RESOLVED', 'ESCALATED'];
+  const allowedStatuses = ['PENDING', 'INVESTIGATING', 'RESOLVED', 'ESCALATED', 'UNSUBSTANTIATED'];
   if (!allowedStatuses.includes(status)) {
     return res.status(400).json({ success: false, error: 'Invalid status value' });
   }
