@@ -6,7 +6,7 @@ WORKDIR /app
 RUN npm install -g serve
 
 # Copy only the static HTML file
-COPY index.html .
+COPY . .
 
 EXPOSE 5173
 

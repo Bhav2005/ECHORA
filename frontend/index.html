@@ -9,7 +9,7 @@
   <link rel="preconnect" href="https://fonts.googleapis.com">
   <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
   <link
-    href="https://fonts.googleapis.com/css2?family=DM+Sans:wght@400;500;600;700&family=Fraunces:opsz,wght@9..144,500;9..144,600&family=Playfair+Display:wght@600;700&display=swap"
+    href="https://fonts.googleapis.com/css2?family=DM+Sans:wght@400;500;600;700&family=Fraunces:opsz,wght@9..144,500;9..144,600&family=Plus+Jakarta+Sans:wght@500;600;700;800&family=Space+Grotesk:wght@600;700;800&family=Outfit:wght@600;700;800&display=swap"
     rel="stylesheet">
   <script src="https://cdn.jsdelivr.net/npm/chart.js@4.4.4/dist/chart.umd.min.js"></script>
   <style>
@@ -139,11 +139,14 @@
     }
 
     .brand-name {
-      font-size: 18px;
-      font-weight: 900;
+      font-family: "Space Grotesk", system-ui, -apple-system, sans-serif;
+      font-size: 21px;
+      font-weight: 700;
       letter-spacing: .12em;
       text-transform: uppercase;
-      font-family: "Fraunces", Georgia, serif
+      background: linear-gradient(135deg, #2f2630 30%, #65485f 100%);
+      -webkit-background-clip: text;
+      -webkit-text-fill-color: transparent;
     }
 
     .brand-tag {
@@ -162,13 +165,14 @@
       border: 0;
       background: transparent;
       color: var(--muted);
-      padding: 10px 15px;
+      padding: 10px 16px;
       border-radius: 12px;
-      font-size: 14px;
-      font-weight: 800;
-      font-family: "DM Sans", system-ui, sans-serif;
+      font-size: 13.5px;
+      font-weight: 600;
+      font-family: "Plus Jakarta Sans", system-ui, -apple-system, sans-serif;
       letter-spacing: .02em;
-      font-style: italic
+      font-style: normal;
+      transition: all .2s ease;
     }
 
     .nav button:hover,
@@ -457,6 +461,27 @@
       grid-template-columns: repeat(3, 1fr);
       gap: 15px;
       margin-top: 24px
+    }
+
+    /* 5 cards: first row 2 wide, second row 3 wide — no orphaned slot */
+    .feature-grid .feature:nth-child(1),
+    .feature-grid .feature:nth-child(2) {
+      grid-column: span 1
+    }
+
+    .feature-grid {
+      grid-template-columns: repeat(6, 1fr)
+    }
+
+    .feature-grid .feature:nth-child(1),
+    .feature-grid .feature:nth-child(2) {
+      grid-column: span 3
+    }
+
+    .feature-grid .feature:nth-child(3),
+    .feature-grid .feature:nth-child(4),
+    .feature-grid .feature:nth-child(5) {
+      grid-column: span 2
     }
 
     .feature {
@@ -1016,588 +1041,386 @@
     }
 
     .bot-panel {
-      position: absolute;
-      right: 0;
-      bottom: 62px;
-      width: 300px;
-      background: #fff;
-      border: 1px solid var(--line);
-      border-radius: 20px;
-      box-shadow: 0 24px 65px rgba(43, 29, 40, .18);
-      overflow: hidden
+      position: fixed;
+      right: 28px;
+      bottom: 88px;
+      width: 370px;
+      max-width: calc(100vw - 36px);
+      height: 520px;
+      max-height: calc(100vh - 110px);
+      background: #ffffff;
+      border: 1px solid rgba(101, 72, 95, 0.18);
+      border-radius: 22px;
+      box-shadow: 0 24px 70px rgba(45, 25, 45, 0.22), 0 4px 16px rgba(0, 0, 0, 0.06);
+      overflow: hidden;
+      display: none;
+      flex-direction: column;
+      z-index: 1000;
+      animation: botPanelSlideUp .3s cubic-bezier(.16, 1, .3, 1) both;
+      font-family: "Plus Jakarta Sans", system-ui, sans-serif;
+    }
+
+    @keyframes botPanelSlideUp {
+      from { opacity: 0; transform: translateY(16px) scale(.96); }
+      to { opacity: 1; transform: translateY(0) scale(1); }
     }
 
     .bot-head {
-      background: var(--plum);
-      color: white;
-      padding: 14px 16px;
+      background: linear-gradient(135deg, #4d3348 0%, #65485f 100%);
+      color: #ffffff;
+      padding: 13px 16px;
       display: flex;
-      justify-content: space-between
-    }
-
-    .bot-head strong {
-      font-size: 12px
-    }
-
-    .bot-head span {
-      font-size: 9px;
-      opacity: .75
-    }
-
-    .bot-body {
-      padding: 14px
-    }
-
-    .bot-msg {
-      font-size: 11px;
-      line-height: 1.55;
-      color: var(--muted);
-      background: #f7f1f5;
-      border-radius: 13px;
-      padding: 11px
-    }
-
-    .bot-options {
-      display: grid;
-      gap: 7px;
-      margin-top: 10px
-    }
-
-    .bot-options button {
-      border: 1px solid var(--line);
-      background: #fff;
-      border-radius: 10px;
-      padding: 9px;
-      text-align: left;
-      font-size: 10px;
-      font-weight: 700;
-      color: var(--ink)
-    }
-
-    .bot-options button:hover {
-      background: var(--plum-soft)
-    }
-
-    .admin-login {
-      width: min(540px, 100%);
-      margin: 60px auto
-    }
-
-    .admin-top {
-      display: flex;
-      justify-content: space-between;
-      align-items: end;
-      margin-bottom: 18px
-    }
-
-    .admin-chat {
-      display: grid;
-      grid-template-columns: 310px 1fr;
-      min-height: 430px;
-      border: 1px solid var(--line);
-      border-radius: 18px;
-      overflow: hidden
-    }
-
-    .case-list {
-      background: #fbf8f6;
-      border-right: 1px solid var(--line);
-      padding: 10px
-    }
-
-    .case-item {
-      padding: 13px;
-      border-radius: 13px;
-      margin-bottom: 5px;
-      cursor: pointer
-    }
-
-    .case-item:hover,
-    .case-item.active {
-      background: var(--plum-soft)
-    }
-
-    .case-item strong {
-      font-size: 11px
-    }
-
-    .case-item small {
-      display: block;
-      color: var(--muted);
-      font-size: 9px;
-      margin-top: 4px
-    }
-
-    .chat-panel {
-      padding: 18px
-    }
-
-    .chat-header {
-      display: flex;
-      justify-content: space-between;
       align-items: center;
-      border-bottom: 1px solid var(--line);
-      padding-bottom: 13px
-    }
-
-    .chat-actions {
-      display: flex;
-      gap: 7px;
-      margin-top: 12px
-    }
-
-    .chat-actions .input,
-    .chat-actions .select {
-      flex: 1
-    }
-
-    .faq {
-      margin-top: 18px
-    }
-
-    .faq button {
-      width: 100%;
-      background: #fff;
-      border: 1px solid var(--line);
-      border-radius: 12px;
-      padding: 12px;
-      text-align: left;
-      font-size: 10px;
-      font-weight: 800;
-      margin-top: 7px
-    }
-
-    .faq-answer {
-      display: none;
-      padding: 9px 12px;
-      color: var(--muted);
-      font-size: 10px;
-      line-height: 1.5
-    }
-
-    .faq-item.open .faq-answer {
-      display: block
-    }
-
-    .footer {
-      padding: 26px 0;
-      border-top: 1px solid var(--line);
-      color: var(--faint);
-      font-size: 10px
-    }
-
-    .footer-row {
-      display: flex;
       justify-content: space-between;
-      gap: 15px
+      border-bottom: 1px solid rgba(255, 255, 255, 0.12);
+      flex-shrink: 0;
     }
 
-    @media(max-width:980px) {
-
-      .hero,
-      .grid2 {
-        grid-template-columns: 1fr
-      }
-
-      .hero {
-        padding: 40px 0
-      }
-
-      .hero-visual {
-        min-height: 420px
-      }
-
-      .feature-grid,
-      .grid3,
-      .grid4 {
-        grid-template-columns: repeat(2, 1fr)
-      }
-
-      .admin-chat {
-        grid-template-columns: 1fr
-      }
-
-      .case-list {
-        border-right: 0;
-        border-bottom: 1px solid var(--line)
-      }
-
-      .nav button:nth-child(3) {
-        display: none
-      }
+    .bot-head-info {
+      display: flex;
+      align-items: center;
+      gap: 10px;
     }
 
-    @media(max-width:640px) {
-      .app {
-        width: calc(100% - 12px);
-        margin: 6px auto;
-        border-radius: 20px
-      }
-
-      .topbar {
-        height: auto;
-        min-height: 70px;
-        padding: 12px 14px;
-        gap: 10px
-      }
-
-      .brand-tag {
-        display: none
-      }
-
-      .nav {
-        overflow: auto
-      }
-
-      .nav button {
-        font-size: 10px;
-        padding: 8px
-      }
-
-      .nav .primary {
-        padding: 9px 11px
-      }
-
-      .wrap {
-        width: min(100% - 28px, 1180px)
-      }
-
-      .hero h1 {
-        font-size: 48px
-      }
-
-      .hero-visual {
-        min-height: 390px
-      }
-
-      .feature-grid,
-      .grid3,
-      .grid4,
-      .choice-grid {
-        grid-template-columns: 1fr
-      }
-
-      .page-head {
-        padding-top: 30px;
-        display: block
-      }
-
-      .page-head h2 {
-        font-size: 36px
-      }
-
-      .card {
-        padding: 18px
-      }
-
-      .otp-row {
-        flex-direction: column
-      }
-
-      .bot {
-        right: 16px;
-        bottom: 16px
-      }
-
-      .bot-panel {
-        width: min(300px, calc(100vw - 30px))
-      }
-
-      .footer-row {
-        flex-direction: column
-      }
-    }
-
-    @media(prefers-reduced-motion:reduce) {
-      * {
-        scroll-behavior: auto !important;
-        transition: none !important;
-        animation: none !important
-      }
-    }
-
-    /* ECHORA visual refinement v3 */
-    body {
-      font-size: 16px
-    }
-
-    .brand-name {
-      font-family: "Fraunces", Georgia, serif;
-      font-size: 21px;
-      font-weight: 700;
-      letter-spacing: .055em;
-      line-height: 1;
-    }
-
-    .brand-tag {
-      font-size: 11px;
-      letter-spacing: .01em
-    }
-
-    .mark {
-      width: 44px;
-      height: 44px;
-      border-radius: 15px;
-      display: grid;
-      place-items: center;
+    .bot-avatar-wrap {
+      position: relative;
+      width: 36px;
+      height: 36px;
+      border-radius: 12px;
+      background: #1e1424;
+      border: 1.5px solid rgba(255, 255, 255, 0.25);
       overflow: hidden;
-      position: relative;
-      background: linear-gradient(145deg, #79536f 0%, #543b51 100%);
-      box-shadow: 0 9px 22px rgba(76, 49, 70, .18);
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      flex-shrink: 0;
     }
 
-    .mark svg {
-      width: 37px;
-      height: 37px;
-      display: block
+    .bot-avatar-wrap img {
+      width: 100%;
+      height: 100%;
+      object-fit: cover;
+      display: block;
     }
 
-    .mark:after {
-      content: "";
+    .bot-online-indicator {
       position: absolute;
-      inset: 6px;
-      border: 1px solid rgba(255, 255, 255, .12);
+      bottom: -1px;
+      right: -1px;
+      width: 9px;
+      height: 9px;
+      background: #34d399;
+      border: 2px solid #4d3348;
+      border-radius: 50%;
+    }
+
+    .bot-title {
+      font-size: 14px;
+      font-weight: 700;
+      color: #ffffff;
+      display: flex;
+      align-items: center;
+      gap: 6px;
+      letter-spacing: .01em;
+    }
+
+    .bot-chip {
+      font-size: 9px;
+      font-weight: 700;
+      text-transform: uppercase;
+      letter-spacing: .06em;
+      background: rgba(255, 255, 255, 0.2);
+      padding: 2px 6px;
+      border-radius: 6px;
+      color: #fae9f5;
+    }
+
+    .bot-subtitle {
+      font-size: 11px;
+      color: rgba(255, 255, 255, 0.78);
+      margin-top: 1px;
+    }
+
+    .bot-head-actions {
+      display: flex;
+      align-items: center;
+      gap: 4px;
+    }
+
+    .bot-action-btn {
+      background: rgba(255, 255, 255, 0.12);
+      border: 0;
+      color: #ffffff;
+      width: 28px;
+      height: 28px;
+      border-radius: 8px;
+      cursor: pointer;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      font-size: 15px;
+      transition: background .2s ease;
+    }
+
+    .bot-action-btn:hover {
+      background: rgba(255, 255, 255, 0.25);
+    }
+
+    .bot-chat-container {
+      flex: 1;
+      min-height: 0;
+      display: flex;
+      flex-direction: column;
+      background: #faf8fa;
+      overflow-y: auto;
+      overscroll-behavior: contain;
+      padding: 14px 14px 10px;
+      gap: 12px;
+      scrollbar-width: thin;
+      scrollbar-color: rgba(101, 72, 95, 0.2) transparent;
+    }
+
+    .bot-chat-container::-webkit-scrollbar {
+      width: 5px;
+    }
+
+    .bot-chat-container::-webkit-scrollbar-thumb {
+      background: rgba(101, 72, 95, 0.2);
+      border-radius: 99px;
+    }
+
+    .bot-messages {
+      display: flex;
+      flex-direction: column;
+      gap: 10px;
+    }
+
+    .bot-message {
+      display: flex;
+      gap: 8px;
+      max-width: 92%;
+      animation: msgPopIn .24s cubic-bezier(.16, 1, .3, 1) both;
+    }
+
+    @keyframes msgPopIn {
+      from { opacity: 0; transform: translateY(6px); }
+      to { opacity: 1; transform: translateY(0); }
+    }
+
+    .bot-message.bot-assistant {
+      align-self: flex-start;
+    }
+
+    .bot-message.bot-user {
+      align-self: flex-end;
+      flex-direction: row-reverse;
+    }
+
+    .msg-avatar {
+      width: 28px;
+      height: 28px;
+      border-radius: 9px;
+      background: #231728;
+      overflow: hidden;
+      flex-shrink: 0;
+      margin-top: 2px;
+    }
+
+    .msg-avatar img {
+      width: 100%;
+      height: 100%;
+      object-fit: cover;
+    }
+
+    .msg-bubble {
+      padding: 10px 13px;
+      font-size: 12.5px;
+      line-height: 1.55;
+    }
+
+    .bot-assistant .msg-bubble {
+      background: #ffffff;
+      color: #2f2630;
+      border: 1px solid #ebdfee;
+      border-radius: 14px 14px 14px 4px;
+      box-shadow: 0 3px 10px rgba(50, 30, 48, 0.04);
+    }
+
+    .bot-assistant .msg-bubble p {
+      margin: 0 0 6px 0;
+    }
+
+    .bot-assistant .msg-bubble p:last-child {
+      margin-bottom: 0;
+    }
+
+    .bot-assistant .msg-bubble ul {
+      margin: 4px 0 6px 16px;
+      padding: 0;
+    }
+
+    .bot-assistant .msg-bubble li {
+      margin-bottom: 3px;
+    }
+
+    .bot-user .msg-bubble {
+      background: linear-gradient(135deg, #65485f 0%, #7d5975 100%);
+      color: #ffffff;
+      border-radius: 14px 14px 4px 14px;
+      box-shadow: 0 3px 12px rgba(101, 72, 95, 0.2);
+    }
+
+    .bot-user .msg-bubble p {
+      margin: 0;
+    }
+
+    .bot-action-link {
+      display: inline-block;
+      margin-top: 6px;
+      padding: 4px 9px;
+      background: #f4e9f3;
+      color: #65485f;
+      border-radius: 8px;
+      font-weight: 700;
+      font-size: 11px;
+      text-decoration: none;
+      cursor: pointer;
+      border: 1px solid #e5d4e3;
+      transition: all .2s ease;
+    }
+
+    .bot-action-link:hover {
+      background: #65485f;
+      color: #ffffff;
+      border-color: #65485f;
+    }
+
+    .bot-typing-dots {
+      display: flex;
+      align-items: center;
+      gap: 4px;
+      padding: 8px 12px;
+      background: #ffffff;
+      border: 1px solid #ebdfee;
+      border-radius: 14px 14px 14px 4px;
+      width: fit-content;
+    }
+
+    .bot-typing-dots span {
+      width: 6px;
+      height: 6px;
+      border-radius: 50%;
+      background: #a69aa3;
+      animation: typingPulse 1.2s infinite ease-in-out;
+    }
+
+    .bot-typing-dots span:nth-child(2) { animation-delay: .2s; }
+    .bot-typing-dots span:nth-child(3) { animation-delay: .4s; }
+
+    @keyframes typingPulse {
+      0%, 80%, 100% { transform: scale(0.7); opacity: 0.4; }
+      40% { transform: scale(1.15); opacity: 1; background: #65485f; }
+    }
+
+    .bot-quick-chips {
+      display: flex;
+      flex-wrap: wrap;
+      gap: 6px;
+      margin-top: 4px;
+      padding-top: 6px;
+      border-top: 1px dashed rgba(101, 72, 95, 0.15);
+    }
+
+    .quick-chip {
+      background: #ffffff;
+      border: 1px solid #ebdfee;
+      color: #5c4757;
+      padding: 5px 10px;
+      border-radius: 20px;
+      font-size: 11px;
+      font-weight: 600;
+      cursor: pointer;
+      display: inline-flex;
+      align-items: center;
+      gap: 4px;
+      transition: all .18s ease;
+      box-shadow: 0 1px 4px rgba(0, 0, 0, 0.02);
+    }
+
+    .quick-chip:hover {
+      background: #f4e9f3;
+      border-color: #cbabc7;
+      color: #4a2e45;
+      transform: translateY(-1px);
+    }
+
+    .bot-input-bar {
+      display: flex;
+      align-items: center;
+      gap: 8px;
+      padding: 10px 12px;
+      background: #ffffff;
+      border-top: 1px solid #ebdfee;
+      flex-shrink: 0;
+    }
+
+    .bot-input-bar input {
+      flex: 1;
+      background: #faf6f9;
+      border: 1px solid #e8dfe6;
+      border-radius: 12px;
+      padding: 9px 13px;
+      font-size: 13px;
+      color: #2f2630;
+      font-family: inherit;
+      outline: none;
+      transition: border-color .2s ease, box-shadow .2s ease;
+    }
+
+    .bot-input-bar input:focus {
+      border-color: #8a5a80;
+      background: #ffffff;
+      box-shadow: 0 0 0 3px rgba(101, 72, 95, 0.1);
+    }
+
+    .bot-input-bar input::placeholder {
+      color: #a69aa3;
+    }
+
+    .bot-input-bar button {
+      width: 36px;
+      height: 36px;
       border-radius: 11px;
-      pointer-events: none;
+      background: var(--plum);
+      color: #ffffff;
+      border: 0;
+      cursor: pointer;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      flex-shrink: 0;
+      transition: all .2s ease;
     }
 
-    .nav button {
-      font-size: 13px;
-      padding: 11px 14px
+    .bot-input-bar button:hover {
+      background: #54374f;
+      transform: scale(1.04);
     }
 
-    .nav .primary {
-      padding: 12px 17px
-    }
-
-    .btn {
-      font-size: 13px;
-      padding: 13px 18px
-    }
-
-    .label {
-      font-size: 13px !important
-    }
-
-    .sub {
-      font-size: 15px !important;
-      line-height: 1.7
-    }
-
-    .field input,
-    .field select,
-    .field textarea {
-      font-size: 15px
-    }
-
-    .pill {
-      font-size: 11px
-    }
-
-    .eyebrow {
-      font-size: 11px
-    }
-
-    .hero p {
-      font-size: 17px
-    }
-
-    .flow-node strong {
-      font-size: 15px
-    }
-
-    .flow-node span {
-      font-size: 12px
-    }
-
-    .tiny {
-      font-size: 11px
-    }
-
-    /* A friendlier, alive Echo assistant */
-    .bot-btn {
-      position: relative;
-      width: 52px !important;
-      height: 52px !important;
-      display: grid !important;
-      place-items: center;
-      font-size: 25px !important;
-      animation: echoFloat 3.2s ease-in-out infinite;
-      overflow: visible !important;
-    }
-
-    .bot-btn::after {
-      content: "👋";
+    .bot-badge-dot {
       position: absolute;
-      right: -15px;
-      top: -8px;
-      font-size: 24px;
-      transform-origin: 70% 80%;
-      animation: zephyrWave 1.2s ease-in-out infinite;
-      filter: drop-shadow(0 3px 5px rgba(50, 30, 48, .12));
-      z-index: 50;
+      top: -2px;
+      right: -2px;
+      width: 12px;
+      height: 12px;
+      background: #a855f7;
+      border: 2px solid #ffffff;
+      border-radius: 50%;
     }
 
-    .bot-btn::before {
-      content: "";
-      position: absolute;
-      inset: -4px;
-      border: 1px solid rgba(101, 72, 95, .18);
-      border-radius: 18px;
-      animation: echoPulse 3.2s ease-in-out infinite;
-    }
+    
 
-    .bot-btn:hover {
-      animation: echoBounce .65s ease-in-out infinite
-    }
-
-    @keyframes zephyrWave {
-      0% {
-        transform: rotate(-25deg) scale(1)
-      }
-
-      25% {
-        transform: rotate(15deg) scale(1.08)
-      }
-
-      50% {
-        transform: rotate(-25deg) scale(1)
-      }
-
-      75% {
-        transform: rotate(15deg) scale(1.08)
-      }
-
-      30% {
-        transform: rotate(15deg) scale(1)
-      }
-
-      45% {
-        transform: rotate(-25deg) scale(1.08)
-      }
-
-      60% {
-        transform: rotate(10deg) scale(1)
-      }
-
-      80% {
-        transform: rotate(0deg) scale(1)
-      }
-
-      100% {
-        transform: rotate(0deg) scale(1)
-      }
-    }
-
-    @keyframes echoFloat {
-
-      0%,
-      100% {
-        transform: translateY(0) rotate(0)
-      }
-
-      50% {
-        transform: translateY(-5px) rotate(-2deg)
-      }
-    }
-
-    @keyframes echoWave {
-
-      0%,
-      100% {
-        transform: rotate(12deg)
-      }
-
-      12% {
-        transform: rotate(28deg)
-      }
-
-      24% {
-        transform: rotate(-4deg)
-      }
-
-      36% {
-        transform: rotate(25deg)
-      }
-
-      48% {
-        transform: rotate(8deg)
-      }
-    }
-
-    @keyframes echoPulse {
-
-      0%,
-      100% {
-        opacity: .2;
-        transform: scale(1)
-      }
-
-      50% {
-        opacity: .65;
-        transform: scale(1.08)
-      }
-    }
-
-    @keyframes echoBounce {
-
-      0%,
-      100% {
-        transform: translateY(0) rotate(0)
-      }
-
-      50% {
-        transform: translateY(-7px) rotate(5deg)
-      }
-    }
-
-    .bot-panel {
-      font-size: 13px
-    }
-
-    .bot-msg {
-      font-size: 13px;
-      line-height: 1.6
-    }
-
-    .bot-options button {
-      font-size: 12px !important;
-      padding: 10px 11px !important
-    }
-
-    @keyframes botClick {
-      0% {
-        transform: scale(1)
-      }
-
-      35% {
-        transform: scale(.9) rotate(-6deg)
-      }
-
-      70% {
-        transform: scale(1.08) rotate(5deg)
-      }
-
-      100% {
-        transform: scale(1)
-      }
-    }
-
-    .bot-btn.bot-clicked {
-      animation: botClick .55s ease !important
-    }
-
-    @media (prefers-reduced-motion:reduce) {
-
-      .bot-btn,
-      .bot-btn::after,
-      .bot-btn::before {
-        animation: none !important
-      }
-    }
-
-    /* Make status messages clearer instead of looking like raw errors */
-    .status-msg.error {
+.status-msg.error {
       border-color: #efc7c0;
       background: #fdf0ed;
       color: #9b5449
@@ -2232,7 +2055,7 @@
             <div class="bot-bubble">Hi! I'm Echo 🤖 · Need a quick explanation?</div>
           </div>
         </div>
-        <div class="wrap section" style="padding-top:8px">
+        <div class="wrap section" style="padding-top:8px;padding-bottom:0">
           <div class="tiny">Built around the user's journey</div>
           <div class="feature-grid">
             <div class="feature">
@@ -2267,6 +2090,7 @@
             </div>
           </div>
         </div>
+        <div style="height:32px"></div>
       </section>
 
       <section id="complaint" class="screen">
@@ -3059,20 +2883,58 @@
   </footer>
   </div>
 
-  <div class="bot"><button class="bot-btn" id="botToggle" aria-label="Open Echo assistant"><span
-        aria-hidden="true">🤖</span></button>
-    <div class="bot-panel hidden" id="botPanel">
+  <div class="bot">
+    <button class="bot-btn" id="botToggle" aria-label="Open Echo AI assistant">
+      <img src="bot_icon.jpg" alt="Echo AI bot" />
+      <span class="bot-badge-dot"></span>
+    </button>
+    <div class="bot-panel" id="botPanel" style="display:none">
       <div class="bot-head">
-        <div><strong>Zephyr</strong><span style="display:block">Your ECHORA companion</span></div><button id="botClose"
-          style="background:none;border:0;color:#fff">×</button>
+        <div class="bot-head-info">
+          <div class="bot-avatar-wrap">
+            <img src="bot_icon.jpg" alt="Echo AI" />
+            <span class="bot-online-indicator"></span>
+          </div>
+          <div>
+            <div class="bot-title">Echo AI <span class="bot-chip">Smart Bot</span></div>
+            <div class="bot-subtitle">Institutional Privacy & Grievance Guide</div>
+          </div>
+        </div>
+        <div class="bot-head-actions">
+          <button id="botClearChat" title="Reset chat" class="bot-action-btn">↺</button>
+          <button id="botClose" title="Close" class="bot-action-btn">×</button>
+        </div>
       </div>
-      <div class="bot-body">
-        <div class="bot-msg" id="botMsg">Hey! I'm Zephyr 🌬️ I can explain the page you're on or help you understand
-          ECHORA.</div>
-        <div class="bot-options"><button data-bot="privacy">🔐 How does privacy work?</button><button
-            data-bot="submit">📝 How do I submit an Echo?</button><button data-bot="mailbox">📬 How do I track a
-            case?</button><button data-bot="k">📊 What does k = 5 mean?</button></div>
+      
+      <div class="bot-chat-container" id="botChatContainer">
+        <div class="bot-messages" id="botMessages">
+          <div class="bot-message bot-assistant">
+            <div class="msg-avatar"><img src="bot_icon.jpg" alt="Echo AI" /></div>
+            <div class="msg-bubble">
+              <p>Hi! 👋 I'm <strong>Echo AI</strong>, your confidential grievance and privacy assistant.</p>
+              <p>I can answer questions about anonymity, OTP verification, submitting an Echo, or tracking your case.</p>
+            </div>
+          </div>
+        </div>
+
+        <div class="bot-quick-chips" id="botQuickChips">
+          <button type="button" class="quick-chip" data-query="How does anonymous reporting work?">🔐 How does privacy work?</button>
+          <button type="button" class="quick-chip" data-query="How do I submit an Echo?">📝 How do I submit an Echo?</button>
+          <button type="button" class="quick-chip" data-query="How do I track my submitted complaint?">📬 How do I track my case?</button>
+          <button type="button" class="quick-chip" data-query="Can reviewers see my email address?">🛡️ Can reviewers see my email?</button>
+          <button type="button" class="quick-chip" data-query="What is the k-anonymity threshold?">📊 What does k = 5 mean?</button>
+        </div>
       </div>
+
+      <form class="bot-input-bar" id="botInputForm">
+        <input type="text" id="botInput" placeholder="Ask Echo AI anything..." autocomplete="off" />
+        <button type="submit" id="botSendBtn" aria-label="Send message">
+          <svg viewBox="0 0 24 24" width="16" height="16" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round">
+            <line x1="22" y1="2" x2="11" y2="13"></line>
+            <polygon points="22 2 15 22 11 13 2 9 22 2"></polygon>
+          </svg>
+        </button>
+      </form>
     </div>
   </div>
 
@@ -3190,7 +3052,16 @@
     $('#printReceiptBtn').addEventListener('click', () => window.print());
 
     /* feedback UI */
-    let feedbackScore = 0; $$('#feedbackFaces .face').forEach(b => b.addEventListener('click', () => { feedbackScore = +b.dataset.score; $$('#feedbackFaces .face').forEach(x => x.classList.toggle('active', x === b)) })); $$('#feedbackTags .tag').forEach(b => b.addEventListener('click', () => b.classList.toggle('active'))); $('#feedbackSubmit').addEventListener('click', () => { if (!feedbackScore) return show('#feedbackMsg', 'Pick a feeling first.', true); show('#feedbackMsg', 'Thanks — your feedback will help shape the community pulse.') });
+    let feedbackScore = 0;
+    $$('#feedbackFaces .face').forEach(b => b.addEventListener('click', () => { feedbackScore = +b.dataset.score; $$('#feedbackFaces .face').forEach(x => x.classList.toggle('active', x === b)) }));
+    $$('#feedbackTags .tag').forEach(b => b.addEventListener('click', () => b.classList.toggle('active')));
+    const feedbackSubmitBtn = $('#feedbackSubmit');
+    if (feedbackSubmitBtn) {
+      feedbackSubmitBtn.addEventListener('click', () => {
+        if (!feedbackScore) return show('#feedbackMsg', 'Pick a feeling first.', true);
+        show('#feedbackMsg', 'Thanks — your feedback will help shape the community pulse.');
+      });
+    }
 
     /* transparency charts */
     function makeChart(id, type, labels, data, label) { if (charts[id]) charts[id].destroy(); charts[id] = new Chart($(id), { type, data: { labels, datasets: [{ label, data, borderColor: '#65485f', backgroundColor: type === 'bar' ? '#d9c5d5' : 'rgba(101,72,95,.12)', borderWidth: 2, fill: type === 'line', borderRadius: type === 'bar' ? 8 : 0, tension: .35, pointRadius: type === 'line' ? 3 : 0 }] }, options: { responsive: true, maintainAspectRatio: false, plugins: { legend: { display: false } }, scales: { y: { beginAtZero: true, grid: { color: '#eee7eb' }, ticks: { font: { size: 9 } } }, x: { grid: { display: false }, ticks: { font: { size: 9 } } } } } }) }
@@ -3346,20 +3217,256 @@
     /* FAQ */
     $$('.faq button').forEach(b => b.addEventListener('click', () => b.closest('.faq-item').classList.toggle('open')));
 
-    /* bot */
-    const botAnswers = { privacy: 'ECHORA verifies institutional access first, then uses the blind-token flow before the complaint is submitted. The goal is to keep verification separate from the case content.', submit: 'Choose Send an Echo, enter your institutional email, verify the OTP, choose a category and campus area, describe the concern, then send securely. Your mailbox key is generated for follow-up.', mailbox: 'Open My Echoes and paste the private box_… mailbox key you received after submission. The mailbox shows status, responses and the case journey.', k: 'k = 5 means the public dashboard should only expose a protected group when at least five independent records support it. Smaller groups are suppressed.' };
-    $('#botToggle').addEventListener('click', () => $('#botPanel').classList.toggle('hidden')); $('#botClose').addEventListener('click', () => $('#botPanel').classList.add('hidden')); $$('[data-bot]').forEach(b => b.addEventListener('click', () => $('#botMsg').textContent = botAnswers[b.dataset.bot]));
+    /* ============================================================
+       Echo AI Assistant — Interactive Conversational Engine
+       ============================================================ */
+    (function () {
+      const toggle = document.getElementById('botToggle');
+      const panel = document.getElementById('botPanel');
+      const close = document.getElementById('botClose');
+      const clear = document.getElementById('botClearChat');
+      const form = document.getElementById('botInputForm');
+      const input = document.getElementById('botInput');
+      const messages = document.getElementById('botMessages');
+      const container = document.getElementById('botChatContainer');
+      const quickChips = document.getElementById('botQuickChips');
 
+      if (!toggle || !panel) return;
 
-    /* Echo assistant motion + tiny contextual greeting */
-    const botToggle = $('#botToggle');
-    if (botToggle) {
-      botToggle.addEventListener('click', () => {
-        botToggle.classList.remove('bot-clicked');
-        void botToggle.offsetWidth;
-        botToggle.classList.add('bot-clicked');
+      // Knowledge Base for Echo AI
+      function getAIResponse(rawQuery) {
+        const q = rawQuery.toLowerCase().trim();
+
+        if (q.includes('privacy') || q.includes('anonymous') || q.includes('blind') || q.includes('secret') || q.includes('identify') || q.includes('safe')) {
+          return {
+            text: `<p><strong>🔐 How ECHORA Protects Your Privacy:</strong></p>
+                   <p>ECHORA uses a <em>cryptographic blind-signature scheme</em>:</p>
+                   <ul>
+                     <li><strong>Separated Services:</strong> The Identity Service verifies your institutional affiliation with OTP, but never sees your grievance content.</li>
+                     <li><strong>Decoupled Content:</strong> The Complaint Service receives only a mathematical cryptographic token proving validity, without knowing who you are.</li>
+                     <li><strong>No Identifiers:</strong> Your email, IP, and personal data are never attached to the complaint record.</li>
+                   </ul>`,
+            action: { label: 'Submit Privately →', page: 'complaint' }
+          };
+        }
+
+        if (q.includes('submit') || q.includes('send') || q.includes('file') || q.includes('complaint') || q.includes('how do i')) {
+          return {
+            text: `<p><strong>📝 Steps to Submit an Echo:</strong></p>
+                   <ol style="margin:4px 0 6px 18px;padding:0">
+                     <li>Click <strong>"Send an Echo"</strong> in the top menu.</li>
+                     <li>Verify your institutional email using a one-time passcode (OTP).</li>
+                     <li>Select the grievance category (Academic, Facilities, Wellbeing, etc.) and department.</li>
+                     <li>Describe your concern honestly and attach evidence if available.</li>
+                     <li>Click <strong>"Send securely"</strong> and save your private <code>box_...</code> mailbox key!</li>
+                   </ol>`,
+            action: { label: 'Start Submission Now →', page: 'complaint' }
+          };
+        }
+
+        if (q.includes('track') || q.includes('mailbox') || q.includes('follow') || q.includes('status') || q.includes('key')) {
+          return {
+            text: `<p><strong>📬 Tracking Your Case with a Mailbox Key:</strong></p>
+                   <p>When you submit an Echo, you are given a unique key (like <code>box_a1b2c3d4e5</code>).</p>
+                   <ul>
+                     <li>Go to <strong>"My Echoes"</strong> in the top navigation.</li>
+                     <li>Paste your mailbox key to view current case status: <em>Pending, Investigating, Escalated, or Resolved</em>.</li>
+                     <li>You can also send and receive replies with reviewers anonymously in the private thread!</li>
+                   </ul>`,
+            action: { label: 'Go to My Echoes →', page: 'mailbox' }
+          };
+        }
+
+        if (q.includes('email') || q.includes('reviewer') || q.includes('admin') || q.includes('see my')) {
+          return {
+            text: `<p><strong>🛡️ Can Reviewers or Admins See My Email?</strong></p>
+                   <p><strong>Absolutely not.</strong> Reviewers only see:</p>
+                   <ul>
+                     <li>Grievance category and department</li>
+                     <li>Campus location / building</li>
+                     <li>Your written concern and attached documents</li>
+                     <li>Your anonymous mailbox key for replies</li>
+                   </ul>
+                   <p>Your institutional email remains strictly locked inside the authentication layer and is never exposed.</p>`
+          };
+        }
+
+        if (q.includes('k = 5') || q.includes('k=5') || q.includes('transparency') || q.includes('public') || q.includes('dashboard')) {
+          return {
+            text: `<p><strong>📊 Understanding k = 5 Anonymity:</strong></p>
+                   <p>To prevent individuals from being singled out through statistics, ECHORA's public Transparency page enforces <strong>k-anonymity (k = 5)</strong>:</p>
+                   <p>Metrics for any category or department are only published if at least <strong>5 independent reports</strong> exist. Smaller groups are suppressed from public charts.</p>`,
+            action: { label: 'View Transparency Charts →', page: 'transparency' }
+          };
+        }
+
+        if (q.includes('urgent') || q.includes('emergency') || q.includes('danger') || q.includes('harassment')) {
+          return {
+            text: `<p><strong>⚠️ Urgent Attention Flag:</strong></p>
+                   <p>When filing an Echo, you can tick the <strong>"Urgent Attention Flag"</strong> if the matter involves immediate safety, harassment, or severe distress.</p>
+                   <p>This automatically prioritizes the case on the reviewer dashboard with a highlighted SLA badge for expedited review.</p>`,
+            action: { label: 'Report Urgent Concern →', page: 'complaint' }
+          };
+        }
+
+        if (q.includes('hi') || q.includes('hello') || q.includes('hey') || q.includes('who are you')) {
+          return {
+            text: `<p>Hello! 😊 I'm <strong>Echo AI</strong>, your 24/7 campus grievance guide. I can help you understand how reporting works, how your identity stays protected, or how to follow up on your cases.</p>
+                   <p>What would you like to explore today?</p>`
+          };
+        }
+
+        // Context-aware helpful default
+        return {
+          text: `<p>I understand you're asking about <em>"${escapeHtml(rawQuery)}"</em>.</p>
+                 <p>As <strong>Echo AI</strong>, I can assist you with:</p>
+                 <ul>
+                   <li><strong>Filing a report:</strong> How to submit an anonymous Echo</li>
+                   <li><strong>Security:</strong> How OTPs and blind signatures protect you</li>
+                   <li><strong>Tracking:</strong> How to use your <code>box_...</code> key in My Echoes</li>
+                   <li><strong>Accountability:</strong> How departments review and resolve cases</li>
+                 </ul>`,
+          action: { label: 'Go to Send an Echo →', page: 'complaint' }
+        };
+      }
+
+      function scrollToBottom() {
+        if (container) {
+          setTimeout(() => {
+            container.scrollTop = container.scrollHeight;
+          }, 40);
+        }
+      }
+
+      function appendMessage(sender, htmlContent) {
+        const msgDiv = document.createElement('div');
+        msgDiv.className = sender === 'user' ? 'bot-message bot-user' : 'bot-message bot-assistant';
+
+        if (sender === 'assistant') {
+          msgDiv.innerHTML = `
+            <div class="msg-avatar"><img src="bot_icon.jpg" alt="Echo AI" /></div>
+            <div class="msg-bubble">${htmlContent}</div>
+          `;
+        } else {
+          msgDiv.innerHTML = `
+            <div class="msg-bubble"><p>${escapeHtml(htmlContent)}</p></div>
+          `;
+        }
+
+        messages.appendChild(msgDiv);
+        scrollToBottom();
+      }
+
+      function showTypingIndicator() {
+        const typingDiv = document.createElement('div');
+        typingDiv.className = 'bot-message bot-assistant';
+        typingDiv.id = 'botTypingIndicator';
+        typingDiv.innerHTML = `
+          <div class="msg-avatar"><img src="bot_icon.jpg" alt="Echo AI" /></div>
+          <div class="bot-typing-dots"><span></span><span></span><span></span></div>
+        `;
+        messages.appendChild(typingDiv);
+        scrollToBottom();
+      }
+
+      function removeTypingIndicator() {
+        const el = document.getElementById('botTypingIndicator');
+        if (el) el.remove();
+      }
+
+      function handleUserQuery(queryText) {
+        if (!queryText || !queryText.trim()) return;
+        const q = queryText.trim();
+
+        // 1. Show user message
+        appendMessage('user', q);
+
+        // 2. Show typing indicator
+        showTypingIndicator();
+
+        // 3. Simulate intelligent AI thinking delay
+        setTimeout(() => {
+          removeTypingIndicator();
+          const response = getAIResponse(q);
+          let fullHtml = response.text;
+
+          if (response.action) {
+            fullHtml += `<br><button type="button" class="bot-action-link" data-action-page="${response.action.page}">${response.action.label}</button>`;
+          }
+
+          appendMessage('assistant', fullHtml);
+
+          // Wire up any newly appended action links
+          document.querySelectorAll('[data-action-page]').forEach(btn => {
+            btn.onclick = function (e) {
+              e.preventDefault();
+              const p = this.getAttribute('data-action-page');
+              if (p && typeof activatePage === 'function') {
+                activatePage(p);
+                panel.style.display = 'none';
+              }
+            };
+          });
+        }, 450);
+      }
+
+      // Toggle Open/Close
+      toggle.addEventListener('click', function (e) {
+        e.stopPropagation();
+        toggle.classList.remove('bot-clicked');
+        void toggle.offsetWidth;
+        toggle.classList.add('bot-clicked');
+
+        const isHidden = (panel.style.display === 'none' || panel.style.display === '');
+        panel.style.display = isHidden ? 'flex' : 'none';
+
+        if (isHidden) {
+          scrollToBottom();
+          if (input) setTimeout(() => input.focus(), 150);
+        }
       });
-    }
+
+      if (close) {
+        close.addEventListener('click', function () {
+          panel.style.display = 'none';
+        });
+      }
+
+      if (clear) {
+        clear.addEventListener('click', function () {
+          messages.innerHTML = `
+            <div class="bot-message bot-assistant">
+              <div class="msg-avatar"><img src="bot_icon.jpg" alt="Echo AI" /></div>
+              <div class="msg-bubble">
+                <p>Chat cleared! 🧹 Ask me anything about ECHORA or choose a topic below.</p>
+              </div>
+            </div>
+          `;
+          scrollToBottom();
+        });
+      }
+
+      // Quick prompt buttons
+      if (quickChips) {
+        quickChips.addEventListener('click', function (e) {
+          const chip = e.target.closest('.quick-chip');
+          if (chip && chip.dataset.query) {
+            handleUserQuery(chip.dataset.query);
+          }
+        });
+      }
+
+      // Input form submit
+      if (form) {
+        form.addEventListener('submit', function (e) {
+          e.preventDefault();
+          const val = input.value;
+          if (!val.trim()) return;
+          input.value = '';
+          handleUserQuery(val);
+        });
+      }
+    })();
 
     /* boot */
     if (adminToken) { setAdminUI(true); loadAdminDashboard() } loadTransparency();
