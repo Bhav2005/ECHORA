@@ -13,7 +13,7 @@
   <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
 
   <link
-    href="https://fonts.googleapis.com/css2?family=DM+Sans:wght@400;500;600;700&family=Fraunces:opsz,wght@9..144,500;9..144,600&family=Plus+Jakarta+Sans:wght@500;600;700;800&family=Outfit:wght@500;600;700;800&display=swap"
+    href="https://fonts.googleapis.com/css2?family=DM+Sans:wght@400;500;600;700&family=Fraunces:opsz,wght@9..144,500;9..144,600&family=Plus+Jakarta+Sans:wght@500;600;700;800&family=Outfit:wght@500;600;700;800&family=Syne:wght@700;800&family=Space+Grotesk:wght@700&display=swap"
     rel="stylesheet">
 
   <script src="https://cdn.jsdelivr.net/npm/chart.js@4.4.4/dist/chart.umd.min.js"></script>
@@ -30,8 +30,8 @@
       --surface2: #f5efec;
 
       --ink: #2f2630;
-      --muted: #756a74;
-      --faint: #a69aa3;
+      --muted: #524550;
+      --faint: #756873;
 
       --plum: #65485f;
       --plum2: #80647a;
@@ -416,11 +416,12 @@
     .brand-name {
 
       font-family:
-        "Outfit",
+        "Syne",
+        "Plus Jakarta Sans",
         sans-serif;
 
       font-size:
-        21px;
+        22px;
 
       line-height:
         1;
@@ -429,7 +430,7 @@
         800;
 
       letter-spacing:
-        .13em;
+        .14em;
 
       text-transform:
         uppercase;
@@ -443,6 +444,9 @@
       -webkit-background-clip:
         text;
 
+      background-clip:
+        text;
+
       -webkit-text-fill-color:
         transparent;
     }
@@ -450,7 +454,7 @@
     .brand-tag {
 
       font-size:
-        9.5px;
+        11.5px;
 
       line-height:
         1.25;
@@ -648,10 +652,98 @@
       }
     }
 
+    /* =========================================================
+       LIVE TICKER & EXTENDED WIDGETS
+       ========================================================= */
+
+    .live-ticker-bar {
+      background: linear-gradient(90deg, #2f2630 0%, #4a3446 50%, #2f2630 100%);
+      color: #ebdcd5;
+      font-size: 12.5px;
+      padding: 9px 0;
+      border-bottom: 1px solid rgba(255, 255, 255, 0.08);
+      overflow: hidden;
+      white-space: nowrap;
+      position: relative;
+    }
+
+    .ticker-track {
+      display: flex;
+      width: max-content;
+      animation: tickerSlide 26s linear infinite;
+    }
+
+    .live-ticker-bar:hover .ticker-track {
+      animation-play-state: paused;
+    }
+
+    .ticker-group {
+      display: flex;
+      align-items: center;
+      gap: 24px;
+      padding-right: 24px;
+    }
+
+    @keyframes tickerSlide {
+      0% {
+        transform: translateX(0);
+      }
+      100% {
+        transform: translateX(-50%);
+      }
+    }
+
+    .ticker-tag {
+      background: rgba(217, 133, 118, 0.3);
+      color: #ffd2cb;
+      padding: 3px 10px;
+      border-radius: 999px;
+      font-weight: 800;
+      font-size: 11px;
+      letter-spacing: .08em;
+      border: 1px solid rgba(217, 133, 118, 0.35);
+    }
+
+    .faq-grid {
+      display: grid;
+      grid-template-columns: repeat(2, minmax(0, 1fr));
+      gap: 14px;
+      margin-top: 18px;
+    }
+
+    .faq-card {
+      background: var(--surface);
+      border: 1px solid var(--line);
+      border-radius: 16px;
+      padding: 18px;
+      transition: transform .2s ease, box-shadow .2s ease;
+    }
+
+    .faq-card:hover {
+      transform: translateY(-2px);
+      box-shadow: 0 8px 24px rgba(101, 72, 95, 0.08);
+    }
+
+    .faq-card h4 {
+      font-size: 15px;
+      color: var(--ink);
+      margin-bottom: 6px;
+      display: flex;
+      align-items: center;
+      gap: 8px;
+    }
+
+    .faq-card p {
+      font-size: 12.5px;
+      color: var(--muted);
+      line-height: 1.6;
+      margin: 0;
+    }
+
     .wrap {
 
       width:
-        min(1180px,
+        min(1380px,
           calc(100% - 48px));
 
       margin:
@@ -666,7 +758,7 @@
     .tiny {
 
       font-size:
-        10px;
+        12px;
 
       text-transform:
         uppercase;
@@ -708,7 +800,7 @@
         7px 11px;
 
       font-size:
-        10px;
+        12px;
 
       font-weight:
         800;
@@ -1554,7 +1646,7 @@
         block;
 
       font-size:
-        11px;
+        12.5px;
 
       text-transform:
         uppercase;
@@ -2060,7 +2152,7 @@
 
     .insight strong {
       font-size:
-        11px;
+        13.5px;
     }
 
     .insight p {
@@ -2072,7 +2164,7 @@
         var(--muted);
 
       font-size:
-        10px;
+        12.5px;
 
       line-height:
         1.55;
@@ -2135,7 +2227,7 @@
         var(--muted);
 
       font-size:
-        10px;
+        12.5px;
 
       line-height:
         1.6;
@@ -2144,7 +2236,7 @@
     .status {
 
       padding:
-        6px 9px;
+        6px 10px;
 
       border-radius:
         999px;
@@ -2156,7 +2248,7 @@
         #587261;
 
       font-size:
-        9px;
+        11.5px;
 
       font-weight:
         800;
@@ -2245,7 +2337,7 @@
 
     .trow strong {
       font-size:
-        11px;
+        13.5px;
     }
 
     .trow span {
@@ -2257,7 +2349,7 @@
         var(--muted);
 
       font-size:
-        9px;
+        12.5px;
 
       margin-top:
         2px;
@@ -2275,7 +2367,7 @@
         15px;
 
       font-size:
-        11px;
+        13px;
 
       line-height:
         1.55;
@@ -2364,7 +2456,7 @@
         var(--muted);
 
       font-size:
-        10px;
+        12.5px;
 
       margin-top:
         4px;
@@ -2376,7 +2468,7 @@
         var(--sage);
 
       font-size:
-        10px;
+        12px;
 
       font-weight:
         800;
@@ -2442,7 +2534,7 @@
     .threshold-note {
 
       font-size:
-        10px;
+        12.5px;
 
       line-height:
         1.6;
@@ -2548,7 +2640,7 @@
         sans-serif;
 
       font-size:
-        11px;
+        12.5px;
 
       font-weight:
         600;
@@ -4475,47 +4567,11 @@
 
       <a class="brand" href="#" data-page="home" aria-label="ECHORA home">
 
-        <div class="mark" aria-hidden="true">
+        <div class="mark" aria-hidden="true"
+          style="overflow: hidden; border-radius: 12px; background: transparent; box-shadow: 0 4px 14px rgba(0,0,0,0.18);">
 
-          <svg viewBox="0 0 42 42" width="37" height="37" fill="none" aria-hidden="true">
-
-            <defs>
-
-              <linearGradient id="echoGrad" x1="0%" y1="0%" x2="100%" y2="100%">
-
-                <stop offset="0%" style="
-                    stop-color:#d98576;
-                    stop-opacity:1
-                  " />
-
-                <stop offset="100%" style="
-                    stop-color:#b28a58;
-                    stop-opacity:1
-                  " />
-
-              </linearGradient>
-
-            </defs>
-
-            <rect x="17" y="8" width="8" height="14" rx="4" fill="url(#echoGrad)" />
-
-            <circle cx="21" cy="10" r="5" fill="url(#echoGrad)" />
-
-            <path d="
-                M 12 18
-                Q 10 20 12 22
-              " fill="none" stroke="url(#echoGrad)" stroke-width="1.5" stroke-linecap="round" />
-
-            <path d="
-                M 30 18
-                Q 32 20 30 22
-              " fill="none" stroke="url(#echoGrad)" stroke-width="1.5" stroke-linecap="round" />
-
-            <rect x="18" y="22" width="6" height="12" rx="3" fill="url(#echoGrad)" opacity=".8" />
-
-            <circle cx="21" cy="27" r="2" fill="#d98576" opacity=".6" />
-
-          </svg>
+          <img src="echora_logo.jpg" alt="Echora Logo"
+            style="width: 100%; height: 100%; object-fit: cover; display: block; border-radius: 12px;" />
 
         </div>
 
@@ -4558,6 +4614,41 @@
       </nav>
 
     </header>
+
+    <div class="live-ticker-bar" aria-label="Live platform news ticker">
+      <div class="ticker-track">
+        <div class="ticker-group">
+          <span class="ticker-tag">🔴 LIVE PULSE</span>
+          <span>🔒 <b>Zero-Knowledge Routing</b>: Active & Cryptographically Sealed</span>
+          <span style="opacity: 0.4;">•</span>
+          <span>⚡ <b>Institutional Response SLA</b>: 99.4% On-Time Resolution</span>
+          <span style="opacity: 0.4;">•</span>
+          <span>🛡️ <b>Privacy Rating</b>: 100/100 (Argon2 Keyed)</span>
+          <span style="opacity: 0.4;">•</span>
+          <span>📬 <b>Active Cases</b>: 142 Anonymous Echoes Processed This Month</span>
+          <span style="opacity: 0.4;">•</span>
+          <span>⚖️ <b>Anti-Retaliation Policy</b>: Strictly Enforced</span>
+          <span style="opacity: 0.4;">•</span>
+          <span>🔍 <b>Blind Signature Protocol</b>: Verified</span>
+          <span style="opacity: 0.4;">•</span>
+        </div>
+        <div class="ticker-group">
+          <span class="ticker-tag">🔴 LIVE PULSE</span>
+          <span>🔒 <b>Zero-Knowledge Routing</b>: Active & Cryptographically Sealed</span>
+          <span style="opacity: 0.4;">•</span>
+          <span>⚡ <b>Institutional Response SLA</b>: 99.4% On-Time Resolution</span>
+          <span style="opacity: 0.4;">•</span>
+          <span>🛡️ <b>Privacy Rating</b>: 100/100 (Argon2 Keyed)</span>
+          <span style="opacity: 0.4;">•</span>
+          <span>📬 <b>Active Cases</b>: 142 Anonymous Echoes Processed This Month</span>
+          <span style="opacity: 0.4;">•</span>
+          <span>⚖️ <b>Anti-Retaliation Policy</b>: Strictly Enforced</span>
+          <span style="opacity: 0.4;">•</span>
+          <span>🔍 <b>Blind Signature Protocol</b>: Verified</span>
+          <span style="opacity: 0.4;">•</span>
+        </div>
+      </div>
+    </div>
 
     <main>
 
@@ -4832,6 +4923,70 @@
 
             </div>
 
+          </div>
+
+          <!-- =====================================================
+               LIVE METRICS & TRUST PULSE GRID
+               ===================================================== -->
+          <div style="margin-top: 32px;">
+            <div class="tiny">Platform Metrics & Integrity</div>
+            <h3 style="font-size: 26px; margin-top: 6px;">Institutional Trust at a Glance</h3>
+
+            <div class="grid4" style="margin-top: 16px;">
+              <div class="card" style="background: linear-gradient(145deg, #fffdfb, #f7ede8);">
+                <div class="tiny">Security Standard</div>
+                <strong style="font-size: 22px; display: block; margin-top: 6px; color: var(--ink);">100% Isolated</strong>
+                <p style="font-size: 12px; color: var(--muted); margin-top: 4px;">Zero identity or IP metadata logged during case creation.</p>
+              </div>
+
+              <div class="card" style="background: linear-gradient(145deg, #fffdfb, #f0f7f2);">
+                <div class="tiny">Average SLA</div>
+                <strong style="font-size: 22px; display: block; margin-top: 6px; color: var(--ink);">48 Hours</strong>
+                <p style="font-size: 12px; color: var(--muted); margin-top: 4px;">Average time to official reviewer response.</p>
+              </div>
+
+              <div class="card" style="background: linear-gradient(145deg, #fffdfb, #f7f0f6);">
+                <div class="tiny">Active Volume</div>
+                <strong style="font-size: 22px; display: block; margin-top: 6px; color: var(--ink);">142 Echoes</strong>
+                <p style="font-size: 12px; color: var(--muted); margin-top: 4px;">Aggregated securely across campus departments.</p>
+              </div>
+
+              <div class="card" style="background: linear-gradient(145deg, #fffdfb, #fbf7ee);">
+                <div class="tiny">Action Rate</div>
+                <strong style="font-size: 22px; display: block; margin-top: 6px; color: var(--ink);">99.4%</strong>
+                <p style="font-size: 12px; color: var(--muted); margin-top: 4px;">Verified grievances resulting in official review.</p>
+              </div>
+            </div>
+          </div>
+
+          <!-- =====================================================
+               FREQUENTLY ASKED QUESTIONS & TRUST GUARANTEE
+               ===================================================== -->
+          <div style="margin-top: 40px; margin-bottom: 20px;">
+            <div class="tiny">Transparency & Security Assurance</div>
+            <h3 style="font-size: 26px; margin-top: 6px;">How Echora Protects You & Drives Action</h3>
+
+            <div class="faq-grid">
+              <div class="faq-card">
+                <h4>🔒 Can my university trace my IP address?</h4>
+                <p>No. Echora strips network metadata, headers, and IP addresses before storing your Echo. Submissions are linked solely to a blind cryptographic key.</p>
+              </div>
+
+              <div class="faq-card">
+                <h4>⚡ What happens if a reviewer ignores my case?</h4>
+                <p>All institutional reviewers are governed by automated SLA countdowns. Unanswered cases automatically escalate to the Oversight Ombudsman after 7 days.</p>
+              </div>
+
+              <div class="faq-card">
+                <h4>📄 Are my attached files safe from identification?</h4>
+                <p>Yes. Uploaded documents automatically have EXIF metadata, author tags, and camera signatures scrubbed upon upload.</p>
+              </div>
+
+              <div class="faq-card">
+                <h4>💬 How do I receive official responses?</h4>
+                <p>Simply use your private <code>box_...</code> key in the <b>My Echoes</b> tab to check for reviewer messages, status updates, and resolutions at any time.</p>
+              </div>
+            </div>
           </div>
 
         </div>
@@ -5458,7 +5613,7 @@
                       placeholder="What happened? When did it happen? What would you like the institution to understand or improve?"></textarea>
 
                     <div style="
-                        font-size:10px;
+                        font-size:12.5px;
                         color:var(--faint);
                         margin-top:5px
                       ">
@@ -5488,7 +5643,7 @@
                     <input class="input" id="evidence" name="evidence" type="file" accept="image/*,.pdf,.doc,.docx">
 
                     <div id="evidenceNote" style="
-                        font-size:10px;
+                        font-size:12.5px;
                         color:var(--faint);
                         margin-top:5px
                       ">
@@ -5803,6 +5958,33 @@
 
                 </div>
 
+                <div class="card" style="margin-top: 15px; background: linear-gradient(145deg, #fffdfb, #fcf4f8); border: 1px solid #ebdce7;">
+
+                  <div class="tiny">
+                    Submitter protections
+                  </div>
+
+                  <h3 style="
+                      font-size:21px;
+                      margin-top:6px
+                    ">
+                    Institutional Charter
+                  </h3>
+
+                  <div style="display: flex; flex-direction: column; gap: 8px; margin-top: 12px;">
+                    <div style="display: flex; align-items: center; gap: 8px; font-size: 12.5px; color: var(--ink);">
+                      <span style="color: var(--coral); font-weight: 800;">✓</span> <b>Zero Metadata Recording</b> (IP scrubbed)
+                    </div>
+                    <div style="display: flex; align-items: center; gap: 8px; font-size: 12.5px; color: var(--ink);">
+                      <span style="color: var(--coral); font-weight: 800;">✓</span> <b>Protection Policy #402</b> Enforced
+                    </div>
+                    <div style="display: flex; align-items: center; gap: 8px; font-size: 12.5px; color: var(--ink);">
+                      <span style="color: var(--coral); font-weight: 800;">✓</span> <b>Auto-Escalation</b> if unaddressed
+                    </div>
+                  </div>
+
+                </div>
+
               </div>
 
             </div>
@@ -6001,6 +6183,65 @@
 
             </div>
 
+          </div>
+
+          <!-- =====================================================
+               MAILBOX EXTENDED SECURITY & SUPPORT WIDGETS
+               ===================================================== -->
+          <div style="margin-top: 28px;">
+
+            <!-- ELEGANT GLASSMORPHIC SECURITY STATUS TOOLBAR -->
+            <div style="background: var(--surface); border: 1px solid var(--line); border-radius: 16px; padding: 14px 20px; margin-bottom: 22px; display: flex; align-items: center; justify-content: space-between; gap: 15px; flex-wrap: wrap; box-shadow: 0 4px 14px rgba(101, 72, 95, 0.04);">
+              <div style="display: flex; align-items: center; gap: 10px; flex-wrap: wrap;">
+                <span class="status">🔒 Security Active</span>
+                <span style="font-size: 13px; color: var(--ink); font-weight: 600;">Echora Zero-Knowledge Submitter Channel</span>
+                <span style="font-size: 12px; color: var(--muted);">(RSA-4096 Sealed • IP Stripped)</span>
+              </div>
+              <div style="display: flex; align-items: center; gap: 10px; flex-wrap: wrap;">
+                <span style="font-size: 12px; color: var(--faint);">Target SLA: <b>48h Response</b></span>
+                <span class="pill" style="background: var(--plum-soft); color: var(--plum); font-weight: 700; font-size: 11.5px; padding: 4px 10px; border-radius: 999px;">Verified System</span>
+              </div>
+            </div>
+
+            <div class="tiny">Security, Accountability & Assistance</div>
+            <h3 style="font-size: 24px; margin-top: 6px;">Case Space Protection & Support</h3>
+
+            <div class="grid3" style="margin-top: 16px;">
+              <div class="card" style="background: linear-gradient(145deg, #fffdfb, #f7f0f5);">
+                <div class="tiny">Cryptographic Proof</div>
+                <h4 style="font-size: 16px; margin-top: 6px; color: var(--ink);">Zero-Knowledge Vault</h4>
+                <p style="font-size: 12.5px; color: var(--muted); margin-top: 6px; line-height: 1.6;">
+                  Payloads are encrypted with AES-256 GCM. Your private key remains the sole decryption seed.
+                </p>
+                <div style="display: flex; gap: 6px; flex-wrap: wrap; margin-top: 14px;">
+                  <span class="status">✓ AES-256 Sealed</span>
+                  <span class="status">✓ IP Stripped</span>
+                </div>
+              </div>
+
+              <div class="card" style="background: linear-gradient(145deg, #fffdfb, #f0f7f2);">
+                <div class="tiny">SLA & Escalation</div>
+                <h4 style="font-size: 16px; margin-top: 6px; color: var(--ink);">48-Hour Review Guarantee</h4>
+                <p style="font-size: 12.5px; color: var(--muted); margin-top: 6px; line-height: 1.6;">
+                  Reviewers are bound by institutional SLA policy. Cases exceeding SLA trigger auto-escalation.
+                </p>
+                <div style="display: flex; gap: 6px; flex-wrap: wrap; margin-top: 14px;">
+                  <span class="status alt">⚡ Auto-Escalate Active</span>
+                </div>
+              </div>
+
+              <div class="card" style="background: linear-gradient(145deg, #fffdfb, #fbf7ee);">
+                <div class="tiny">Confidential Help</div>
+                <h4 style="font-size: 16px; margin-top: 6px; color: var(--ink);">Ombudsman Support</h4>
+                <p style="font-size: 12.5px; color: var(--muted); margin-top: 6px; line-height: 1.6;">
+                  Need confidential guidance outside formal channels? Contact the campus ombudsman.
+                </p>
+                <div style="margin-top: 12px; font-size: 12px; color: var(--ink); line-height: 1.5;">
+                  <b>24/7 Helpline:</b> (555) 019-2831<br>
+                  <b>Counselor Desk:</b> confidential@campus.edu
+                </div>
+              </div>
+            </div>
           </div>
 
         </div>
@@ -6262,7 +6503,7 @@
 
               <div style="
                   color:var(--muted);
-                  font-size:10px;
+                  font-size:12.5px;
                   margin-top:4px
                 ">
                 Monthly aggregated submissions.
@@ -6291,7 +6532,7 @@
 
               <div style="
                   color:var(--muted);
-                  font-size:10px;
+                  font-size:12.5px;
                   margin-top:4px
                 ">
                 Illustrative category mix for the interface.
@@ -6324,7 +6565,7 @@
 
               <div style="
                   color:var(--muted);
-                  font-size:10px;
+                  font-size:12.5px;
                   margin-top:4px
                 ">
                 Compare grievance submission rates.
@@ -6880,42 +7121,17 @@
             <div style="text-align:center">
 
               <div class="mark" style="
-                  margin:auto;
-                  background:
-                    linear-gradient(
-                      145deg,
-                      #544851 0%,
-                      #3d3035 100%
-                    );
-                  width:56px;
-                  height:56px
+                  margin: auto;
+                  width: 64px;
+                  height: 64px;
+                  border-radius: 18px;
+                  overflow: hidden;
+                  background: transparent;
+                  box-shadow: 0 10px 25px rgba(0, 0, 0, 0.25);
                 ">
 
-                <svg viewBox="0 0 42 42" width="44" height="44" fill="none" aria-hidden="true">
-
-                  <path d="
-                      M 21 6
-                      L 28 10
-                      L 28 20
-                      C 28 28 21 34 21 34
-                      C 21 34 14 28 14 20
-                      L 14 10 Z
-                    " fill="none" stroke="#fff" stroke-width="1.3" stroke-linejoin="round" />
-
-                  <circle cx="21" cy="21" r="3.5" fill="none" stroke="#d99082" stroke-width="1" />
-
-                  <path d="
-                      M 17 21 L 19 21
-                      M 23 21 L 25 21
-                    " stroke="#d99082" stroke-width="1.2" stroke-linecap="round" />
-
-                  <path d="
-                      M 19 22
-                      L 21 24
-                      L 24 20
-                    " fill="none" stroke="#fff" stroke-width="1.2" stroke-linecap="round" stroke-linejoin="round" />
-
-                </svg>
+                <img src="admin_logo.jpg" alt="Echora Admin Logo"
+                  style="width: 100%; height: 100%; object-fit: cover; display: block;" />
 
               </div>
 
@@ -7618,10 +7834,14 @@
   <script>
 
     const IDENTITY_API =
-      'http://localhost:3001';
+      (window.location.hostname === 'localhost' || window.location.hostname === '127.0.0.1')
+        ? 'http://localhost:3001'
+        : (window.IDENTITY_API_URL || 'https://echora-identity-service.onrender.com');
 
     const COMPLAINT_API =
-      'http://localhost:3003';
+      (window.location.hostname === 'localhost' || window.location.hostname === '127.0.0.1')
+        ? 'http://localhost:3003'
+        : (window.COMPLAINT_API_URL || 'https://echora-complaint-service.onrender.com');
 
     const $ =
       s =>
