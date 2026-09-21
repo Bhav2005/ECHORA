@@ -4,13 +4,20 @@ const dotenv = require('dotenv');
 
 dotenv.config();
 
-const pool = new Pool({
-  host: process.env.DB_HOST || 'localhost',
-  port: Number(process.env.DB_PORT) || 5432,
-  user: process.env.DB_USER || 'postgres',
-  password: process.env.DB_PASSWORD || 'complaintpassword',
-  database: process.env.DB_NAME || 'echora_complaint',
-});
+const poolConfig = process.env.DATABASE_URL
+  ? {
+      connectionString: process.env.DATABASE_URL,
+      ssl: process.env.DATABASE_URL.includes('localhost') ? false : { rejectUnauthorized: false }
+    }
+  : {
+      host: process.env.DB_HOST || 'localhost',
+      port: Number(process.env.DB_PORT) || 5432,
+      user: process.env.DB_USER || 'postgres',
+      password: process.env.DB_PASSWORD || 'complaintpassword',
+      database: process.env.DB_NAME || 'echora_complaint',
+    };
+
+const pool = new Pool(poolConfig);
 
 const initDb = async () => {
   const client = await pool.connect();
