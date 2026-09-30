@@ -53,7 +53,7 @@ services:
 
   # 3. Frontend Web Application (Static Site)
   - type: web
-    name: echora-frontend
+    name: echora-ui
     runtime: static
     rootDir: frontend
     staticPublishPath: .
