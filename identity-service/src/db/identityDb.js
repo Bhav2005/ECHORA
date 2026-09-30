@@ -18,37 +18,43 @@ const poolConfig = process.env.DATABASE_URL
 
 const pool = new Pool(poolConfig);
 
-const initDb = async () => {
-  const client = await pool.connect();
+const initDb = async (maxRetries = 10, delayMs = 3000) => {
+  for (let attempt = 1; attempt <= maxRetries; attempt++) {
+    try {
+      const client = await pool.connect();
+      try {
+        await client.query(`
+          CREATE TABLE IF NOT EXISTS otps (
+            id SERIAL PRIMARY KEY,
+            email VARCHAR(255) NOT NULL,
+            code VARCHAR(6) NOT NULL,
+            expires_at TIMESTAMP NOT NULL,
+            verified BOOLEAN DEFAULT FALSE,
+            session_token VARCHAR(64),
+            created_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP
+          );
+        `);
 
-  try {
-    await client.query(`
-      CREATE TABLE IF NOT EXISTS otps (
-        id SERIAL PRIMARY KEY,
-        email VARCHAR(255) NOT NULL,
-        code VARCHAR(6) NOT NULL,
-        expires_at TIMESTAMP NOT NULL,
-        verified BOOLEAN DEFAULT FALSE,
-        session_token VARCHAR(64),
-        created_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP
-      );
-    `);
+        await client.query(`
+          CREATE TABLE IF NOT EXISTS issued_tokens (
+            id SERIAL PRIMARY KEY,
+            token_hash VARCHAR(64) NOT NULL UNIQUE,
+            email VARCHAR(255) NOT NULL,
+            created_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP
+          );
+        `);
 
-    await client.query(`
-      CREATE TABLE IF NOT EXISTS issued_tokens (
-        id SERIAL PRIMARY KEY,
-        token_hash VARCHAR(64) NOT NULL UNIQUE,
-        email VARCHAR(255) NOT NULL,
-        created_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP
-      );
-    `);
-
-    console.log('Identity database initialized successfully (PostgreSQL)');
-  } catch (error) {
-    console.error('Error initializing Identity database:', error);
-    throw error;
-  } finally {
-    client.release();
+        console.log('Identity database initialized successfully (PostgreSQL)');
+        return;
+      } finally {
+        client.release();
+      }
+    } catch (error) {
+      console.error(`Database connection attempt ${attempt}/${maxRetries} failed:`, error.message);
+      if (attempt === maxRetries) throw error;
+      console.log(`Retrying in ${delayMs / 1000}s...`);
+      await new Promise((res) => setTimeout(res, delayMs));
+    }
   }
 };
 
