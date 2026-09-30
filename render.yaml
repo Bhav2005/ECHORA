@@ -1,0 +1,77 @@
+# Render Blueprint configuration for Echora
+# Deploy all services and databases automatically on Render.com
+
+services:
+  # 1. Identity Microservice
+  - type: web
+    name: echora-identity-service
+    runtime: node
+    rootDir: identity-service
+    buildCommand: npm install
+    startCommand: node src/server.js
+    plan: free
+    envVars:
+      - key: PORT
+        value: 10000
+      - key: NODE_ENV
+        value: production
+      - key: DATABASE_URL
+        fromDatabase:
+          name: echora-identity-db
+          property: connectionString
+      - key: JWT_SECRET
+        generateValue: true
+      - key: RATE_LIMIT_WINDOW_MS
+        value: 900000
+      - key: RATE_LIMIT_MAX
+        value: 5
+
+  # 2. Complaint Microservice
+  - type: web
+    name: echora-complaint-service
+    runtime: node
+    rootDir: complaint-service
+    buildCommand: npm install
+    startCommand: node src/server.js
+    plan: free
+    envVars:
+      - key: PORT
+        value: 10000
+      - key: NODE_ENV
+        value: production
+      - key: DATABASE_URL
+        fromDatabase:
+          name: echora-complaint-db
+          property: connectionString
+      - key: IDENTITY_SERVICE_URL
+        fromService:
+          type: web
+          name: echora-identity-service
+          property: host
+      - key: JWT_SECRET
+        generateValue: true
+
+  # 3. Frontend Web Application
+  - type: web
+    name: echora-frontend
+    runtime: node
+    rootDir: frontend
+    buildCommand: npm install -g serve
+    startCommand: serve . -p 10000 --no-clipboard
+    plan: free
+    envVars:
+      - key: PORT
+        value: 10000
+
+databases:
+  # Identity Database (PostgreSQL)
+  - name: echora-identity-db
+    databaseName: echora_identity
+    user: postgres
+    plan: free
+
+  # Complaint Database (PostgreSQL)
+  - name: echora-complaint-db
+    databaseName: echora_complaint
+    user: postgres
+    plan: free
