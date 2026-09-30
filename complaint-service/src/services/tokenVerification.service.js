@@ -28,7 +28,7 @@ const fetchPublicKey = async () => {
 
 const verifyToken = async (tokenMessageHex, tokenSignatureHex) => {
   try {
-    const publicKeyInfo = await fetchPublicKey();
+    const publicKeyInfo = await module.exports.fetchPublicKey();
     
     // Parse BigIntegers
     const M = new forge.jsbn.BigInteger(tokenMessageHex, 16);
