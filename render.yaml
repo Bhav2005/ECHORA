@@ -52,8 +52,9 @@ services:
         generateValue: true
 
   # 3. Frontend Web Application (Static Site)
-  - type: static
+  - type: web
     name: echora-frontend
+    runtime: static
     rootDir: frontend
     staticPublishPath: .
 
