@@ -25,6 +25,14 @@ services:
         value: 900000
       - key: RATE_LIMIT_MAX
         value: 5
+      - key: EMAIL_HOST
+        value: smtp.gmail.com
+      - key: EMAIL_PORT
+        value: 587
+      - key: EMAIL_USER
+        value: bhavanac1905@gmail.com
+      - key: EMAIL_PASS
+        value: apwr yvzu bqhj pwxg
 
   # 2. Complaint Microservice
   - type: web
