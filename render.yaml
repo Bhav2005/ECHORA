@@ -67,11 +67,9 @@ databases:
   # Identity Database (PostgreSQL)
   - name: echora-identity-db
     databaseName: echora_identity
-    user: postgres
     plan: free
 
   # Complaint Database (PostgreSQL)
   - name: echora-complaint-db
     databaseName: echora_complaint
-    user: postgres
     plan: free
